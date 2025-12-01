@@ -1,6 +1,7 @@
 "use client";
 
-import { useState } from "react";
+import { useState, useEffect } from "react"; 
+
 
 type Task = {
   id: number;
@@ -62,19 +63,28 @@ export default function HomeClient({ username, appUserId, tasks, goals }:
       })
       window.location.reload()
 
-  // when finishing add task, poperties are initialized
-  setShowModal(false)
-  setTaskTitle("");
-  setTaskDescription("")
-}
-    
+      // when finishing add task, poperties are initialized
+      setShowModal(false)
+      setTaskTitle("");
+      setTaskDescription("")
+    }
+  
+    // This useEffect changes user field area in layout.tsx.
+    // [] means only useEffect run only once. [username] means first time and when changing userneme.
+    // Without [], useEffect runs everytime when rendering.
+    useEffect(() => {
+      const el = document.getElementById("sidebar-username");
+      if (el) {
+        el.textContent = username;
+      }
+    }, [username]);
 
   return (
     <>
       <div>Hello {username} </div>
 
       {goals.map(g => ( 
-        <div className="bg-gray-900 p-4 rounded-xl shadow-md mb-10 mx-auto w-full">
+        <div key={g.id} className="bg-gray-900 p-4 rounded-xl shadow-md mb-10 mx-auto w-full">
           <h3 className="text-xl font-semibold text-white mb-1">{g.title}</h3>
           <p className="text-gray-400 mb-3">{g.description}</p>
           
