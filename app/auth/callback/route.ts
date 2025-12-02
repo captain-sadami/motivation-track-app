@@ -55,6 +55,7 @@ export async function GET(req: NextRequest) {
   res.cookies.set("access_token", data.access_token, {
     httpOnly: true,
     secure: false, // TODO: true for production
+    sameSite: "strict", // added 12/1
     path: "/",
     maxAge: 60 * 60,
   })

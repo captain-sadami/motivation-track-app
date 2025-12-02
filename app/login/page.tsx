@@ -12,15 +12,29 @@ export default function LoginPage() {
       `${domain}/oauth2/v1/authorize?response_type=code` +
       `&client_id=${clientID}` +
       `&redirect_uri=${redirectUri}` +
-      `&scope=openid`;
+      `&scope=openid profile email`;
 
     window.location.href = url;
   };
 
   return (
-    <div style={{ padding: "40px" }}>
-      <h1>Welcome to the portfolio!</h1>
-      <button onClick={handleLogin}>ログイン</button>
+    <div className="flex items-center justify-center h-full w-full">
+      <div className="bg-gray-800 p-10 rounded-2xl shadow-xl max-w-md w-full text-center">
+        <h1 className="text-3xl font-bold mb-4 text-white">
+          Welcome to the portfolio!
+        </h1>
+      
+        <p className="text-gray-300 mb-6">
+          ログインするとダッシュボードやAnalyticsが使えるようになります。
+        </p>
+      
+        <button
+          onClick={handleLogin}
+          className="px-5 py-3 bg-blue-600 hover:bg-blue-700 transition-colors rounded-lg text-white font-semibold w-full"
+        >
+          ログイン
+        </button>
+      </div>
     </div>
   );
 }

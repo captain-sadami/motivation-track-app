@@ -8,8 +8,8 @@ export default async function LogoutPage() {
   // When using window, process must run in the browser.
   // and if you gurantee it runs in browser, you use useEffect function.
   useEffect(() => {
-    const redirectUri = encodeURIComponent("http://localhost:3000/login")
-    const domain = process.env.NEXT_PUBLIC_IDCS_DOMAIN!
+    const redirectUri = encodeURIComponent("http://localhost:3000/login");
+    const domain = process.env.NEXT_PUBLIC_IDCS_DOMAIN!;
     
     // The document shows query parameters and id_token_hint is not needed for real though it doesn't have "optional" notion...
     // https://docs.oracle.com/en/cloud/paas/iam-domains-rest-api/op-oauth2-v1-userlogout-get.html

@@ -13,7 +13,7 @@ export default async function HomePage() {
   if (!idToken || !token) { return <div>No token found</div> }
 
   // try to get user info with access token.
-  const resp = await fetch("https://idcs-a4da4a7d6f404a72a8da656a8c418d4c.identity.oraclecloud.com/oauth2/v1/userinfo", {
+  const resp = await fetch(process.env.IDCS_USERINFO_ENDPOINT!, {
       headers: {
           Authorization: `Bearer ${token}`,
       }

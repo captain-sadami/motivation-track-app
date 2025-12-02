@@ -72,16 +72,19 @@ export default function HomeClient({ username, appUserId, tasks, goals }:
     // This useEffect changes user field area in layout.tsx.
     // [] means only useEffect run only once. [username] means first time and when changing userneme.
     // Without [], useEffect runs everytime when rendering.
-    useEffect(() => {
-      const el = document.getElementById("sidebar-username");
-      if (el) {
-        el.textContent = username;
-      }
-    }, [username]);
+    // moved to AppShell.tsx
+    //useEffect(() => {
+    //  const el = document.getElementById("sidebar-username");
+    //  if (el) {
+    //    el.textContent = username;
+    //  }
+    //}, [username]);
 
   return (
     <>
-      <div>Hello {username} </div>
+      <h1 className="p-4 text-xl font-semibold text-gray-200">
+        Hello, {username.split(" ")[0]}
+      </h1>
 
       {goals.map(g => ( 
         <div key={g.id} className="bg-gray-900 p-4 rounded-xl shadow-md mb-10 mx-auto w-full">
