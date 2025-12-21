@@ -51,6 +51,7 @@ export default async function HomePage() {
     .from("tasks")
     .select("*")
     .eq("user_id", appUserId)
+    .eq("is_completed", false)
     .order("priority")
   
 

@@ -38,19 +38,15 @@ export default function HomeClient({ username, appUserId, tasks, goals }:
     const [showModal, setShowModal] = useState(false);
     // goalId is nullable, so type is assined by union <xx|xx>
     const [selectedGoalId, setSelectedGoalId] = useState<number | null>(null);
-    
     function openModalForGoal(goalId: number|null){
       setSelectedGoalId(goalId);
       setShowModal(true);
     }
+
     const [taskTitle, setTaskTitle] = useState("")
-    const [taskDescription, setTaskDescription] = useState("")
-    
-    const otherTasks = tasks.filter(t=> !t.goal_id);
-    
+    const [taskDescription, setTaskDescription] = useState("")    
     async function addTask(appUserId: number){
       if (!taskTitle) return;
-
       await fetch("/api/addTask", {
         method:"POST",
         headers: {"Content-Type": "application/json"},
@@ -68,6 +64,8 @@ export default function HomeClient({ username, appUserId, tasks, goals }:
       setTaskTitle("");
       setTaskDescription("")
     }
+
+    const otherTasks = tasks.filter(t=> !t.goal_id);
   
     // This useEffect changes user field area in layout.tsx.
     // [] means only useEffect run only once. [username] means first time and when changing userneme.
@@ -79,6 +77,32 @@ export default function HomeClient({ username, appUserId, tasks, goals }:
     //    el.textContent = username;
     //  }
     //}, [username]);
+
+    const [showProgressModal, setShowProgressModal] = useState(false);
+    const [selectedTask, setSelectedTask] = useState<Task | null>(null);
+    const [progressComment, setProgressComment] = useState("");
+    function openProgressModal(task: Task) {
+      setSelectedTask(task);
+      setShowProgressModal(true);
+    }
+
+    async function submitProgress(){
+      if (!selectedTask || !progressComment) return;
+      await fetch("/api/addProgress",{
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({
+          task_id: selectedTask.id,
+          user_id: appUserId,
+          comment: progressComment,
+        }),
+      });
+
+      // clean up
+      setShowProgressModal(false);
+      setProgressComment("");
+      setSelectedTask(null);
+    }
 
   return (
     <>
@@ -94,8 +118,14 @@ export default function HomeClient({ username, appUserId, tasks, goals }:
           {tasks
             .filter(t => t.goal_id === g.id)
             .map(t => 
-              (<div key={t.id} className="text-gray-200 py-1 px-2 bg-gray-800 rounded-lg mb-1 max-w-xl">
-                {t.title}
+              (<div key={t.id} className="text-gray-200 py-1 px-2 bg-gray-800 rounded-lg mb-1 max-w-xl flex justify-between items-center">
+                <span>{t.title}</span>
+                <button
+                  className="text-sm text-blue-400 hover:text-blue-300"
+                  onClick={() => openProgressModal(t)}
+                >
+                  進捗を書く
+                </button>
               </div>)
             )
           }
@@ -115,9 +145,16 @@ export default function HomeClient({ username, appUserId, tasks, goals }:
           {tasks
             .filter(t=>t.goal_id==null)
             .map(t => 
-              (<div key={t.id} className="text-gray-200 py-1 px-2 bg-gray-800 rounded-lg mb-1 mb-1 max-w-xl">
-                {t.title}
-              </div>)
+              (<div key={t.id} className="ext-gray-200 py-1 px-2 bg-gray-800 rounded-lg mb-1 max-w-xl flex justify-between items-center">
+                  {t.title}
+                  <button
+                    className="text-sm text-blue-400 hover:text-blue-300"
+                    onClick={() => openProgressModal(t)}
+                  >
+                    進捗を書く
+                  </button>
+              </div>
+              )
             )
           }
           <button className="mt-3 bg-blue-600 text-white px-3 py-1 rounded hover:bg-blue-500"
@@ -125,9 +162,9 @@ export default function HomeClient({ username, appUserId, tasks, goals }:
           >
             タスクを追加
           </button>
-        </div>
-      )}
-      
+        </div>)
+      }
+
       {showModal && (
         <div className="fixed inset-0 bg-black/50 flex justify-center items-center z-50">
           <div className="bg-gray-900 p-6 rounded-xl w-96 shadow-xl">
@@ -155,6 +192,42 @@ export default function HomeClient({ username, appUserId, tasks, goals }:
                 // when you write onClick={ addTask(appUserId) }, it runs immediately.
                 // when you give addTask function to onClick, you should wrap with {}.
                 onClick={() => addTask(appUserId)}
+                className="px-3 py-1 rounded bg-blue-600 text-white hover:bg-blue-500"
+              >
+                送信
+              </button>
+            </div>
+          </div>
+        </div>
+      )}
+
+      {/* if showProgressModal is True and selectedTask is true, Modal emerges */}
+      {showProgressModal && selectedTask && (
+        <div className="fixed inset-0 bg-black/50 flex justify-center items-center z-50">
+          <div className="bg-gray-900 p-6 rounded-xl w-96 shadow-xl">
+            <h2 className="text-xl font-semibold text-white mb-4">進捗を追加:{selectedTask.title}</h2>
+            
+            <textarea
+             value={progressComment}
+             onChange={(e)=>setProgressComment(e.target.value)}
+             className="w-full p-2 rounded bg-gray-800 text-white mb-3"
+             placeholder="今日やったこと/詰まった点"
+            />
+            
+            {/* close and send button */}
+            <div className="flex justify-end gap-2">
+              <button onClick={()=> {
+                    setShowProgressModal(false);
+                    setProgressComment("");
+                    setSelectedTask(null);
+                  }
+                }
+                className="px-3 py-1 rounded bg-gray-700 text-white hover:bg-gray-600"
+              >
+                キャンセル
+              </button>
+              <button
+                onClick={submitProgress}
                 className="px-3 py-1 rounded bg-blue-600 text-white hover:bg-blue-500"
               >
                 送信
