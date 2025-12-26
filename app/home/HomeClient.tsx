@@ -65,7 +65,7 @@ export default function HomeClient({ username, appUserId, tasks, goals }:
       setTaskDescription("")
     }
 
-    const otherTasks = tasks.filter(t=> !t.goal_id);
+    const otherTasks = tasks.filter(t => t.goal_id==null);
   
     // This useEffect changes user field area in layout.tsx.
     // [] means only useEffect run only once. [username] means first time and when changing userneme.
@@ -86,6 +86,7 @@ export default function HomeClient({ username, appUserId, tasks, goals }:
       setShowProgressModal(true);
     }
 
+    const [markAsCompleted, setMarkAsCompleted] = useState(false);
     async function submitProgress(){
       if (!selectedTask || !progressComment) return;
       await fetch("/api/addProgress",{
@@ -95,6 +96,7 @@ export default function HomeClient({ username, appUserId, tasks, goals }:
           task_id: selectedTask.id,
           user_id: appUserId,
           comment: progressComment,
+          mark_as_completed: markAsCompleted, // added for task complete
         }),
       });
 
@@ -102,7 +104,34 @@ export default function HomeClient({ username, appUserId, tasks, goals }:
       setShowProgressModal(false);
       setProgressComment("");
       setSelectedTask(null);
+      setMarkAsCompleted(false);
+      
+      window.location.reload()
     }
+
+    async function completeTask(taskId: number){
+      await fetch("/api/completeTask", {
+        method: "POST",
+        headers: {"Content-Type": "application/json"},
+        body: JSON.stringify({
+          task_id: taskId,
+        }),
+      });
+
+      console.log("タスクを消化しました")
+      
+      await new Promise(r=>setTimeout(r,300));
+      window.location.reload();
+    }
+
+    //console.log(
+    //  "tasks:",
+    //  tasks.map(t => ({
+    //    id: t.id,
+    //    goal_id: t.goal_id,
+    //    is_completed: t.is_completed,
+    //  }))
+    //);
 
   return (
     <>
@@ -116,9 +145,17 @@ export default function HomeClient({ username, appUserId, tasks, goals }:
           <p className="text-gray-400 mb-3">{g.description}</p>
           
           {tasks
-            .filter(t => t.goal_id === g.id)
+            .filter(t => t.goal_id===g.id && !t.is_completed)
             .map(t => 
               (<div key={t.id} className="text-gray-200 py-1 px-2 bg-gray-800 rounded-lg mb-1 max-w-xl flex justify-between items-center">
+                <div className="flex items-center gap-2">
+                  <button
+                    onClick={()=> completeTask(t.id)}
+                    className="text-gray-400 hover:text-green-400"
+                  >
+                    ✅
+                  </button>
+                </div>
                 <span>{t.title}</span>
                 <button
                   className="text-sm text-blue-400 hover:text-blue-300"
@@ -135,35 +172,42 @@ export default function HomeClient({ username, appUserId, tasks, goals }:
             タスクを追加
           </button>
         </div>
-        
       ))}
       
-      {otherTasks.length > 0 && (
-        <div className="bg-gray-900 p-4 rounded-xl shadow-md mb-10 mx-auto w-full">
-          <h3 className="text-xl font-semibold text-white mb-1">その他のタスク</h3>
-          <p className="text-gray-400 mb-3">目標に紐づかないが、やるべきタスクなど</p>
-          {tasks
-            .filter(t=>t.goal_id==null)
-            .map(t => 
-              (<div key={t.id} className="ext-gray-200 py-1 px-2 bg-gray-800 rounded-lg mb-1 max-w-xl flex justify-between items-center">
-                  {t.title}
-                  <button
-                    className="text-sm text-blue-400 hover:text-blue-300"
-                    onClick={() => openProgressModal(t)}
-                  >
-                    進捗を書く
-                  </button>
+      
+      <div className="bg-gray-900 p-4 rounded-xl shadow-md mb-10 mx-auto w-full">
+        <h3 className="text-xl font-semibold text-white mb-1">その他のタスク</h3>
+        <p className="text-gray-400 mb-3">目標に紐づかないが、やるべきタスクなど</p>
+        {tasks
+          .filter(t=>t.goal_id==null)
+          .map(t => 
+            (<div key={t.id} className="text-gray-200 py-1 px-2 bg-gray-800 rounded-lg mb-1 max-w-xl flex justify-between items-center">
+              <div className="flex items-center gap-2">
+                <button
+                  onClick={()=> completeTask(t.id)}
+                  className="text-gray-400 hover:text-green-400"
+                >
+                  ✅
+                </button>
               </div>
-              )
+              {t.title}
+              <button
+                className="text-sm text-blue-400 hover:text-blue-300"
+                onClick={() => openProgressModal(t)}
+              >
+                進捗を書く
+              </button>
+            </div>
             )
-          }
-          <button className="mt-3 bg-blue-600 text-white px-3 py-1 rounded hover:bg-blue-500"
-            onClick={()=> openModalForGoal(null)}
-          >
-            タスクを追加
-          </button>
-        </div>)
-      }
+          )
+        }
+        <button className="mt-3 bg-blue-600 text-white px-3 py-1 rounded hover:bg-blue-500"
+          onClick={()=> openModalForGoal(null)}
+        >
+          タスクを追加
+        </button>
+      </div>
+      
 
       {showModal && (
         <div className="fixed inset-0 bg-black/50 flex justify-center items-center z-50">
@@ -196,6 +240,14 @@ export default function HomeClient({ username, appUserId, tasks, goals }:
               >
                 送信
               </button>
+              <label className="flex items-center gap-2 text-sm text-gray-300 mb-3">
+                <input
+                  type="checkbox"
+                  checked={markAsCompleted}
+                  onChange={e => setMarkAsCompleted(e.target.checked)}
+                />
+                このタスクを完了にする
+              </label>
             </div>
           </div>
         </div>
@@ -232,6 +284,14 @@ export default function HomeClient({ username, appUserId, tasks, goals }:
               >
                 送信
               </button>
+              <label className="flex items-center gap-2 text-sm text-gray-300 mb-3">
+                <input
+                  type="checkbox"
+                  checked={markAsCompleted}
+                  onChange={e => setMarkAsCompleted(e.target.checked)}
+                />
+                このタスクを完了にする
+              </label>
             </div>
           </div>
         </div>

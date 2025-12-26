@@ -5,27 +5,22 @@ export const runtime = "nodejs";
 
 const client = new OpenAI({ apiKey: process.env.OPENAI_API_KEY });
 
-type TaskProgress = {
-  task_id: number;
+export type TaskProgress = {
   task_title: string;
   comment: string[];
 }
-type AnalyzeRequest = {
-  date: string;
-  tasks: TaskProgress[];
-};
 
 function comments_2_comment(comments: string[]): string{
-  return comments.join("\n")
+  // more than one comment concatinated with "そして"
+  return comments.join("\nそして、")
 }
 
-function buildDailyInput(date: string, tasks: TaskProgress[]) {
-  let text = `【日付】${date}\n\n 【タスク別進捗】\n\n`;
+function buildDailyInput(tasks: TaskProgress[]) {
+  let text = `【タスク別進捗】\n\n`;
 
   for (const t of tasks) {
     const comment_per_task = comments_2_comment(t.comment)
     text +=
-      `■ タスクID: ${t.task_id}\n` +
       `タスク名: ${t.task_title}\n` +
       `進捗:\n${comment_per_task}\n\n`;
   }
@@ -33,21 +28,11 @@ function buildDailyInput(date: string, tasks: TaskProgress[]) {
 }
 
 
-
-export async function POST(req: Request) {
-  try {
-    const body = (await req.json()) as AnalyzeRequest;
-
-    if (!body?.tasks || body.tasks.length===0) {
-      return NextResponse.json({ error: "tasks are required" }, { status: 400 });
-    }
-
-    if (!body?.date) {
-      return NextResponse.json( { error: "date is required" }, { status: 400 });
-    }
-
-    const dailyInputText = buildDailyInput(body.date, body.tasks);
-
+//export async function analyzeMotivation(progresses: Map<number | null, {title: String, comments: String[]}>) 
+export async function analyzeMotivation(progresses: Map<number | null, TaskProgress>) 
+{
+    const arrayedProgresses = Array.from(progresses.values())
+    const dailyInputText = buildDailyInput(arrayedProgresses);
     const response = await client.responses.create({
       model: "gpt-5-nano",
       reasoning: { effort: "low" },
@@ -106,15 +91,5 @@ export async function POST(req: Request) {
     summary: string;
   };
   
-  return NextResponse.json({ result });
-
-  } catch (err: any) {
-    console.error(err);
-
-    return NextResponse.json(
-      { error: "failed to analyze", detail: err?.message ?? String(err) },
-      { status: 500 }
-    );
-  }
+  return result;
 }
-

@@ -8,6 +8,7 @@ export async function POST(req: Request) {
     const task_id = body.task_id;
     const user_id = body.user_id;
     const comment = body.comment;
+    const mark_as_completed = body.mark_as_completed
 
     if (!task_id || !user_id || !comment) {
       return NextResponse.json(
@@ -26,7 +27,17 @@ export async function POST(req: Request) {
         user_id,
         comment,
       });
-    
+      
+    if (mark_as_completed) {
+      await supabase
+        .from("tasks")
+        .update({
+          is_completed: true,
+          completed_at: new Date().toISOString(),
+        })
+        .eq("id", task_id)
+    }
+
     if (error){
       console.error(error);
       return NextResponse.json(
