@@ -1,10 +1,10 @@
 import { cookies } from "next/headers"
 import jwt from "jsonwebtoken";
-import HomeClient from "./HomeClient";
+import AnalyticsClient  from "./AnalyticsClient"
 import { createSupabaseServer } from "@/lib/supabaseServer"
 
 
-export default async function HomePage() {
+export default async function AnalyticsPage() {
   // cookies is exptracted from request from brower..
   const cookie = await cookies()
   const token = cookie.get("access_token")?.value;
@@ -20,6 +20,7 @@ export default async function HomePage() {
   })
 
   // resp is Response object, so convert to json format.
+  // Indetifying an user on "Identity domains"
   const user = await resp.json()
   const username = user.name ?? "No username found"
 
@@ -33,42 +34,41 @@ export default async function HomePage() {
   // Download tasks from DB, which should be alloed only to the server never user.
   const supabase = createSupabaseServer();
 
+  // Identifying an user on "Supabase"
   const { data: userRow } = await supabase
     .from("users")
     .select("id")
     .eq("identity_id", guid)
     .single()
-  
   const appUserId = userRow?.id;
   console.log(`appUserId: ${appUserId}`)
 
+  // goal info
   const { data: goals } = await supabase
     .from("goals")
-    .select("*")
+    .select("id, title, description, is_active")
     .eq("owner_id", appUserId)
-  
+
+  //
   const { data: tasks } = await supabase
     .from("tasks")
-    .select("*")
+    .select("id, goal_id, title, description, completed_at")
     .eq("user_id", appUserId)
-    .eq("is_completed", false)
-    .order("priority")
-  
+    .eq("is_completed", true)
 
-  // POST request is processed by POST function in @/api/register/route.ts.
-  await fetch(`http://localhost:3000/api/registerUser`, {
-    method: "POST",
-    headers: { "Content-Type": "application/json" },
-    // JSON.stringify makes JavaScript object to string; HTTP(S), WebScoket always process string.
-    body: JSON.stringify({ identity_id: guid})
-  });
+  const { data: dailySummaries } = await supabase
+    .from("daily_summaries")
+    .select("id, user_id, sentiment, content_md, summary_date")
+    .eq("user_id", appUserId)
+  
   
   return (
-    <HomeClient 
-      username={user.name}
+    <AnalyticsClient
+      username={username}
       appUserId={appUserId}
-      goals={goals ?? []}  
-      tasks={tasks ?? []} 
+      goals={goals ?? []}
+      tasks={tasks ?? []}
+      dailySummaries={dailySummaries ?? []}
     />
   );
 }

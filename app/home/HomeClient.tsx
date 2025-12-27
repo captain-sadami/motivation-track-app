@@ -25,7 +25,7 @@ type Goal = {
   owner_id?: number;
   department_id: number;
   is_active: boolean;
-}
+};
 
 
 export default function HomeClient({ username, appUserId, tasks, goals }:
@@ -124,15 +124,6 @@ export default function HomeClient({ username, appUserId, tasks, goals }:
       window.location.reload();
     }
 
-    //console.log(
-    //  "tasks:",
-    //  tasks.map(t => ({
-    //    id: t.id,
-    //    goal_id: t.goal_id,
-    //    is_completed: t.is_completed,
-    //  }))
-    //);
-
   return (
     <>
       <h1 className="p-4 text-xl font-semibold text-gray-200">
@@ -148,14 +139,6 @@ export default function HomeClient({ username, appUserId, tasks, goals }:
             .filter(t => t.goal_id===g.id && !t.is_completed)
             .map(t => 
               (<div key={t.id} className="text-gray-200 py-1 px-2 bg-gray-800 rounded-lg mb-1 max-w-xl flex justify-between items-center">
-                <div className="flex items-center gap-2">
-                  <button
-                    onClick={()=> completeTask(t.id)}
-                    className="text-gray-400 hover:text-green-400"
-                  >
-                    ✅
-                  </button>
-                </div>
                 <span>{t.title}</span>
                 <button
                   className="text-sm text-blue-400 hover:text-blue-300"
@@ -182,14 +165,6 @@ export default function HomeClient({ username, appUserId, tasks, goals }:
           .filter(t=>t.goal_id==null)
           .map(t => 
             (<div key={t.id} className="text-gray-200 py-1 px-2 bg-gray-800 rounded-lg mb-1 max-w-xl flex justify-between items-center">
-              <div className="flex items-center gap-2">
-                <button
-                  onClick={()=> completeTask(t.id)}
-                  className="text-gray-400 hover:text-green-400"
-                >
-                  ✅
-                </button>
-              </div>
               {t.title}
               <button
                 className="text-sm text-blue-400 hover:text-blue-300"
@@ -240,14 +215,6 @@ export default function HomeClient({ username, appUserId, tasks, goals }:
               >
                 送信
               </button>
-              <label className="flex items-center gap-2 text-sm text-gray-300 mb-3">
-                <input
-                  type="checkbox"
-                  checked={markAsCompleted}
-                  onChange={e => setMarkAsCompleted(e.target.checked)}
-                />
-                このタスクを完了にする
-              </label>
             </div>
           </div>
         </div>

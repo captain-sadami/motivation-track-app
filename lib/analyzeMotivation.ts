@@ -1,12 +1,12 @@
 import OpenAI from "openai";
 import { NextResponse } from "next/server";
 
+
 export const runtime = "nodejs";
-
 const client = new OpenAI({ apiKey: process.env.OPENAI_API_KEY });
-
 export type TaskProgress = {
   task_title: string;
+  is_completed: boolean;
   comment: string[];
 }
 
@@ -22,7 +22,11 @@ function buildDailyInput(tasks: TaskProgress[]) {
     const comment_per_task = comments_2_comment(t.comment)
     text +=
       `タスク名: ${t.task_title}\n` +
-      `進捗:\n${comment_per_task}\n\n`;
+      `進捗:\n${comment_per_task}\n`;
+    if (t.is_completed) {
+      text += "本日タスク完了\n"
+    }
+    text += "\n"
   }
   return text;
 }
