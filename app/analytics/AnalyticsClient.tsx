@@ -1,6 +1,8 @@
 "use client";
 
 import { useState } from "react";
+import { LineChart, Line, ResponsiveContainer} from "recharts";
+
 
 type Goal = {
   id?: number;
@@ -62,20 +64,101 @@ export default function AnalyticsClient({ username, appUserId, goals, tasks, dai
       goals.map(g=>[g.id, g])
     );
 
+    // initilly acc is {} which is initiated by last part
+    // when you use reduce, you can avoid result variable outside of the for roop!
+    // acc is corresponding to the resutl variable, here.
     const tasksByDate = filteredTasks.reduce((acc, t)=> {
       if (!t.completed_at) return acc;
 
       const date = new Date(t.completed_at + "Z");
+      // e.g. key is "2025-12-28"
       const key = date.toLocaleDateString("sv-SE")
-      console.log(key)
 
       if (!acc[key]) acc[key] = [];
       acc[key].push(t);
-      
+      // acc = {"2025-12-28":[task1]}
+
       return acc;
     }, {} as Record<string, typeof filteredTasks>);
+    // Record<Key, Value>
+    
+    const sentimentSeries = dailySummaries
+      .filter(s => {
+        const d = new Date(s.summary_date);
+        
+        if (range==="week") {
+          const start = new Date();
+          start.setDate(start.getDate()-7);
+          return d >= start;
+        }
+        
+        if (range==="month") {
+          return (
+            d.getFullYear() === now.getFullYear() &&
+            d.getMonth() === now.getMonth()
+          );
+        }
+        return true;
+      })
+      .sort((a,b) => a.summary_date.localeCompare(b.summary_date))
+      .map(s=> ({
+        date: s.summary_date,
+        sentiment: s.sentiment,
+      }));
 
+    function SentimentMiniGraph({
+        data,
+      }: {
+        data: {date: string; sentiment: number }[];
+      }) 
+      {
+        if (data.length===0) {
+          return (
+            <div className="text-xs text-gray-500">
+              データなし
+            </div>
+          );
+        }
 
+        const avg = data.reduce((sum,d)=>sum+d.sentiment,0)/data.length;
+        const trendIcon=
+          avg >= 0.5 ? "🙂" :
+          avg <= -0.5 ? "😵" :
+          "😐";
+
+        return (
+          <div>
+            {/* header */}
+            <div className="flex items-center justify-between mb-1">
+              <span className="text-xs text-gray-400">
+                メンタル推移
+              </span>
+              <span className="text-sm">
+                {trendIcon}
+              </span>
+            </div>
+
+            {/* graph */}
+            <ResponsiveContainer width="100%" height={80}>
+              <LineChart data={data}>
+                <Line
+                  type="monotone"
+                  dataKey="sentiment"
+                  stroke="#60a5fa"
+                  strokeWidth={2}
+                  dot={false}
+                />
+              </LineChart>
+            </ResponsiveContainer>
+
+            {/* average */}
+            <div className="text-[10px] text-gray-400 text-right mt-1">
+              平均 {avg.toFixed(1)}
+            </div>
+          </div>
+        );
+      }
+    
     return(
       <>
         <h1 className="p-4 text-xl font-semibold text-gray-200">
@@ -84,46 +167,58 @@ export default function AnalyticsClient({ username, appUserId, goals, tasks, dai
         
         {/* div start: showing tasks which have been accomplished */}
         <div className="max-w-5xl mx-auto px-4">
-          
-          {/* ==== period selector ==== */}
-          <div className="flex gap-2 mb-6">
-            <button
-              className={`px-3 py-1 rounded-md text-sm
-                ${range === "week"
-                  ? "bg-blue-600 text-white"
-                  : "bg-gray-800 text-gray-300 hover:bg-gray-700"
-                }
-              `}
-                onClick={() => setRange("week")}
-            >
-              今週
-            </button>
+          {/* separate top space into two sections */}
+          <div className="flex items-start justify-between mb-6">
+            {/* left: section: period selector */}
+            <div className="flex gap-2 mb-6">
+              <button
+                className={`px-3 py-1 rounded-md text-sm
+                  ${range === "week"
+                    ? "bg-blue-600 text-white"
+                    : "bg-gray-800 text-gray-300 hover:bg-gray-700"
+                  }
+                `}
+                  onClick={() => setRange("week")}
+              >
+                今週
+              </button>
 
-            <button
-              className={`px-3 py-1 rounded-md text-sm
-                ${range === "month"
-                  ? "bg-blue-600 text-white"
-                  : "bg-gray-800 text-gray-300 hover:bg-gray-700"
-                }
-              `}
-                onClick={() => setRange("month")}
-            >
-              今月
-            </button>
-            
-            <button
-              className={`px-3 py-1 rounded-md text-sm
-                ${range === "all"
-                  ? "bg-blue-600 text-white"
-                  : "bg-gray-800 text-gray-300 hover:bg-gray-700"
-                }
-              `}
-                onClick={() => setRange("all")}
-            >
-              全て
-            </button>
+              <button
+                className={`px-3 py-1 rounded-md text-sm
+                  ${range === "month"
+                    ? "bg-blue-600 text-white"
+                    : "bg-gray-800 text-gray-300 hover:bg-gray-700"
+                  }
+                `}
+                  onClick={() => setRange("month")}
+              >
+                今月
+              </button>
+                
+              <button
+                className={`px-3 py-1 rounded-md text-sm
+                  ${range === "all"
+                    ? "bg-blue-600 text-white"
+                    : "bg-gray-800 text-gray-300 hover:bg-gray-700"
+                  }
+                `}
+                  onClick={() => setRange("all")}
+              >
+                全て
+              </button>
+            </div>
+
+            {/* right section: mini graph */}
+            <div className="w-48">
+              <SentimentMiniGraph data={sentimentSeries} />
+            </div>
           </div>
           
+          {/* the most difficult syntax part */}
+          {/* in sort method, sort contents in a list according to the rule inside the argument */}
+          {/* Object.entries makes {"2025-01-15":[task1, task2], "2025-01-16":[task3],... } into */}
+          {/* => [["2025-01-15",[task1, task2]], ["2025-01-16",[task3]],... ] */}
+          {/* inside the sort method [a] and [b] is assigned to "2025-01-15" and "2025-01-16" */}
           {Object.entries(tasksByDate)
             .sort(([a], [b]) => b.localeCompare(a))
             .map(([date, tasks]) => (
@@ -139,16 +234,32 @@ export default function AnalyticsClient({ username, appUserId, goals, tasks, dai
                     s.user_id===appUserId &&
                     s.summary_date===date
                   )
-                  .map(s => (
-                    <div className="bg-[#e9e5dc] rounded-xl p-5 mb-6">
-                      <div className="text-sm font-semibold text-gray-700 mb-2 tracking-wide">
-                        🪄 AIサマリー日報
+                  .map(s => {
+                    const label = 
+                      s.sentiment===2 ? "😀 最高！":
+                      s.sentiment===1 ? "🙂 良い感じ":
+                      s.sentiment===0 ? "😐 ふつう":
+                      s.sentiment===-1 ? "😵 しんどめ":
+                      s.sentiment===-2 ? "🤢 最悪":
+                      "";
+
+                    return(
+                      <div
+                        key={s.id}
+                        className="bg-[#e9e5dc] rounded-xl p-5 mb-6"
+                      >
+                        <div className="text-sm font-semibold text-gray-700 mb-2 tracking-wide">
+                          🪄 AIサマリー日報
+                        </div>
+                        <div className="text-[#1f2933] text-sm leading-relaxed whitespace-pre-wrap">
+                          メンタル分析：{label}
+                        </div>
+                        <p className="text-[#1f2933] text-sm leading-relaxed whitespace-pre-wrap">
+                          {s.content_md}
+                        </p>
                       </div>
-                      <p className="text-[#1f2933] text-sm leading-relaxed whitespace-pre-wrap">
-                        {s.content_md}
-                      </p>
-                    </div>
-                  ))
+                    );
+                  })
                 }
 
                 {tasks.map(t=>{
