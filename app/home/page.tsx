@@ -46,6 +46,7 @@ export default async function HomePage() {
     .from("goals")
     .select("*")
     .eq("owner_id", appUserId)
+    .eq("is_active", true)
   
   const { data: tasks } = await supabase
     .from("tasks")
