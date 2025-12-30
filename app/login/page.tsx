@@ -25,7 +25,7 @@ export default function LoginPage() {
         </h1>
       
         <p className="text-gray-300 mb-6">
-          ログインするとダッシュボードやAnalyticsが使えるようになります。
+          ログインしてはじめましょう
         </p>
       
         <button
