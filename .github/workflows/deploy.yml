@@ -20,7 +20,7 @@ jobs:
           username: ${{ secrets.OCI_USER }}
           key: ${{ secrets.OCI_SSH_KEY }}
           script: |
-            cd /opt/app
+            cd /home/opc/app/motivation-track-app
             docker compose pull
             docker compose up -d
 
