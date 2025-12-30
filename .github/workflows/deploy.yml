@@ -23,10 +23,3 @@ jobs:
             cd /home/opc/app/motivation-track-app
             docker compose pull
             docker compose up -d
-
-script: |
-  cd /home/opc/app/motivation-track-app
-  docker compose pull
-  docker compose up -d --build
-
-
