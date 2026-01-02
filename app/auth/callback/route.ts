@@ -48,14 +48,18 @@ export async function GET(req: NextRequest) {
   // NextResponse object can make browser redirect after return.
   // NexResponse.redirect() returns HTTP 302 response + Location header.
   // Point: fetch makes the subject "the server"; redirect makes the subject "the browser".
-  const res = NextResponse.redirect("http://localhost:3000/home")
+  //const res = NextResponse.redirect("http://localhost:3000/home")
+  const res = NextResponse.redirect(
+                new URL("/home", req.nextUrl)
+              )
   // NextResponse.redirect makes HTTP response itself
   // after returned in the last row in this script, browser get it and obey the 302 instruction.
 
   res.cookies.set("access_token", data.access_token, {
     httpOnly: true,
     secure: false, // TODO: true for production
-    sameSite: "strict", // added 12/1
+    //sameSite: "strict", // added 12/1
+    sameSite: "lax", //added 1/2
     path: "/",
     maxAge: 60 * 60,
   })
