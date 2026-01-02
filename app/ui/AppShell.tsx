@@ -39,6 +39,7 @@ export default function HomeLayout({ children, username
           <nav className="mt-4 space-y-2">
             <Link href="/home" className="block px-4 py-2 hover:bg-gray-800">🏠 ホーム</Link>
             <Link href="/analytics" className="block px-4 py-2 hover:bg-gray-800">📈 Analytics</Link>
+            <Link href="/control" className="block px-4 py-2 hover:bg-gray-800">🧠 Control</Link>
           </nav>
         </div>
         {/* profile */}
