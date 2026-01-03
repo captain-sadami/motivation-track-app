@@ -8,14 +8,13 @@ export default function LoginPage() {
     const domain = process.env.NEXT_PUBLIC_IDCS_DOMAIN!;
 
 
-    const url = 
-      `${domain}/oauth2/v1/authorize` +
-      `?client_id=${clientID}` +
-      `&redirect_uri=${redirectUri}` +
-      "&response_type=code" +
-      `&scope=openid profile email`;
+    const url = new URL(`${domain}/oauth2/v1/authorize`);  
+    url.searchParams.set("response_type", "code");
+    url.searchParams.set("client_id", clientID);
+    url.searchParams.set("redirect_uri", redirectUri);
+    url.searchParams.set("scope", "openid profile email");
 
-    window.location.href = url;
+    window.location.href = url.toString();
   };
 
   return (
