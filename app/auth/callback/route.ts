@@ -49,7 +49,9 @@ export async function GET(req: NextRequest) {
   // NexResponse.redirect() returns HTTP 302 response + Location header.
   // Point: fetch makes the subject "the server"; redirect makes the subject "the browser".
   //const res = NextResponse.redirect("http://localhost:3000/home")
-  const res = NextResponse.redirect("/home");
+  const res = NextResponse.redirect(
+    new URL("/home", req.nextUrl.origin)
+  )
 
   // NextResponse.redirect makes HTTP response itself
   // after returned in the last row in this script, browser get it and obey the 302 instruction.
