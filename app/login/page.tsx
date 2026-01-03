@@ -9,9 +9,10 @@ export default function LoginPage() {
 
 
     const url = 
-      `${domain}/oauth2/v1/authorize?response_type=code` +
-      `&client_id=${clientID}` +
+      `${domain}/oauth2/v1/authorize` +
+      `?client_id=${clientID}` +
       `&redirect_uri=${redirectUri}` +
+      "?response_type=code" +
       `&scope=openid profile email`;
 
     window.location.href = url;
