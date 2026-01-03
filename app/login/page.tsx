@@ -6,8 +6,7 @@ export default function LoginPage() {
     const clientID = process.env.NEXT_PUBLIC_IDCS_CLIENT_ID!;
     const redirectUri = process.env.NEXT_PUBLIC_OIDC_REDIRECT_URI!;
     const domain = process.env.NEXT_PUBLIC_IDCS_DOMAIN!;
-
-
+    
     const url = new URL(`${domain}/oauth2/v1/authorize`);  
     url.searchParams.set("response_type", "code");
     url.searchParams.set("client_id", clientID);
