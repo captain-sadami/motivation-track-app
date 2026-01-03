@@ -4,7 +4,7 @@
 export default function LoginPage() {
   const handleLogin = () => {
     const clientID = process.env.NEXT_PUBLIC_IDCS_CLIENT_ID!;
-    const redirectUri = process.env.OIDC_REDIRECT_URI!;
+    const redirectUri = process.env.NEXT_PUBLIC_OIDC_REDIRECT_URI!;
     const domain = process.env.NEXT_PUBLIC_IDCS_DOMAIN!;
 
 
