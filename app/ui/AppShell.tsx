@@ -32,7 +32,8 @@ export default function HomeLayout({ children, username
   return (
     <div className="flex h-screen">
       {/* left area */}
-      <aside className="w-64 bg-gray-900 text-white flex flex-col justify-between">
+      {/* <aside className="w-64 bg-gray-900 text-white flex flex-col justify-between"> */}
+      <aside className="hidden md:flex w-64 bg-gray-900 text-white flex-col justify-between">
         <div>
           <div className="p-4 text-xl font-bold">The Motivation Tracker</div>
           
@@ -40,6 +41,22 @@ export default function HomeLayout({ children, username
             <Link href="/home" className="block px-4 py-2 hover:bg-gray-800">🏠 ホーム</Link>
             <Link href="/analytics" className="block px-4 py-2 hover:bg-gray-800">📈 Analytics</Link>
             <Link href="/control" className="block px-4 py-2 hover:bg-gray-800">🧠 Control</Link>
+          </nav>
+
+          {/* Mobile Bottom Navigation */}
+          <nav className="fixed bottom-0 left-0 right-0 md:hidden bg-gray-900 border-t border-gray-700 flex justify-around py-2 text-white">
+            <Link href="/home" className="flex flex-col items-center text-xs">
+              <span className="text-lg">🏠</span>
+              ホーム
+            </Link>
+            <Link href="/analytics" className="flex flex-col items-center text-xs">
+              <span className="text-lg">📈</span>
+              分析
+            </Link>
+            <Link href="/control" className="flex flex-col items-center text-xs">
+              <span className="text-lg">🧠</span>
+              管理
+            </Link>
           </nav>
         </div>
         {/* profile */}
@@ -51,7 +68,8 @@ export default function HomeLayout({ children, username
         </div>
       </aside>
 
-      <main className="flex-1 overflow-y-auto bg-gray-800 text-white p-6">
+      {/* <main className="flex-1 overflow-y-auto bg-gray-800 text-white p-6"> */}
+      <main className="flex-1 overflow-y-auto bg-gray-800 text-white p-4 md:p-6 pb-20 md:pb-6">
         {shouldConnect && <WebSocketClient />}
         {children}
       </main>
