@@ -12,7 +12,7 @@ export default function LoginPage() {
       `${domain}/oauth2/v1/authorize` +
       `?client_id=${clientID}` +
       `&redirect_uri=${redirectUri}` +
-      "?response_type=code" +
+      "&response_type=code" +
       `&scope=openid profile email`;
 
     window.location.href = url;
