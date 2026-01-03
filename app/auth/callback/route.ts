@@ -31,7 +31,7 @@ export async function GET(req: NextRequest) {
     body: new URLSearchParams({
       grant_type: "authorization_code",
       code,
-      redirect_uri: "http://localhost:3000/auth/callback",
+      redirect_uri: process.env.OIDC_REDIRECT_URI!,
       client_id: clientID,
       client_secret: clientSecret,
     }),
