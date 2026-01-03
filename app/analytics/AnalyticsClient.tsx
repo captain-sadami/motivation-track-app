@@ -35,29 +35,41 @@ export default function AnalyticsClient({ username, appUserId, goals, tasks, dai
     dailySummaries: DailySummary[];
   })
   {
-    {/* inside <>, stirng literal type is asssined, which indicates string type and simultaneously a value */}
-    const [range ,setRange] = useState<"week" | "month" | "all">("week")
-    const now = new Date();
-    const filteredTasks = tasks.filter(t=>{
-      if (!t.completed_at) return false;
-      const completed = new Date(t.completed_at);
+    function toDateKey(date:Date){
+      return date.toISOString().slice(0,10);
+      // "YYYY-MM-DD"
+    }
 
-      if (range==="week") { 
-        const start = new Date();
-        start.setDate(start.getDate()-7)
-        return completed >= start;
+    function getStartForRange(range: "week" | "month" | "all") {
+      if (range==="all") return null;
+
+      const d = new Date();
+      d.setHours(0,0,0,0);
+
+      if (range==="week") {
+        d.setDate(d.getDate()-6);
+        return d;
       }
 
       if (range==="month") {
-        const start = new Date(
-          now.getFullYear(),
-          now.getMonth(),
-          1
-        );
-        return completed >= start
+        d.setDate(1);
+        return d;
       }
-      
-      return true; //all
+
+      return null;
+    }
+
+
+    {/* inside <>, stirng literal type is asssined, which indicates string type and simultaneously a value */}
+    const [range, setRange] = useState<"week" | "month" | "all">("week");
+    const start = getStartForRange(range);
+
+    const filteredTasks = tasks.filter(t=>{
+      if (!t.completed_at) return false;
+      if (!start) return true; // null is returned when range==="all" see getStartForRange
+
+      const completed = new Date(t.completed_at);
+      return completed >= start;
     });
 
     const goalMap = Object.fromEntries(
@@ -65,47 +77,32 @@ export default function AnalyticsClient({ username, appUserId, goals, tasks, dai
     );
 
     // initilly acc is {} which is initiated by last part
-    // when you use reduce, you can avoid result variable outside of the for roop!
+    // when you use reduce, you can avoid defining result variable outside of the for roop!
     // acc is corresponding to the resutl variable, here.
     const tasksByDate = filteredTasks.reduce((acc, t)=> {
-      if (!t.completed_at) return acc;
-
-      const date = new Date(t.completed_at + "Z");
-      // e.g. key is "2025-12-28"
-      const key = date.toLocaleDateString("sv-SE")
+      const key = toDateKey(new Date(t.completed_at));
 
       if (!acc[key]) acc[key] = [];
       acc[key].push(t);
-      // acc = {"2025-12-28":[task1]}
 
       return acc;
-    }, {} as Record<string, typeof filteredTasks>);
+    }, {} as Record<string, Task[]>);
     // Record<Key, Value>
     
+
     const sentimentSeries = dailySummaries
       .filter(s => {
+        if (!start) return true;
         const d = new Date(s.summary_date);
-        
-        if (range==="week") {
-          const start = new Date();
-          start.setDate(start.getDate()-7);
-          return d >= start;
-        }
-        
-        if (range==="month") {
-          return (
-            d.getFullYear() === now.getFullYear() &&
-            d.getMonth() === now.getMonth()
-          );
-        }
-        return true;
+        return d >=start;
       })
-      .sort((a,b) => a.summary_date.localeCompare(b.summary_date))
-      .map(s=> ({
-        date: s.summary_date,
+      .sort((a, b) => a.summary_date.localeCompare(b.summary_date))
+      .map(s => ({
+        date: toDateKey(new Date(s.summary_date)),
         sentiment: s.sentiment,
       }));
 
+      
     function SentimentMiniGraph({
         data,
       }: {
@@ -214,10 +211,10 @@ export default function AnalyticsClient({ username, appUserId, goals, tasks, dai
             </div>
           </div>
           
-          {/* the most difficult syntax part */}
-          {/* in sort method, sort contents in a list according to the rule inside the argument */}
-          {/* Object.entries makes {"2025-01-15":[task1, task2], "2025-01-16":[task3],... } into */}
-          {/* => [["2025-01-15",[task1, task2]], ["2025-01-16",[task3]],... ] */}
+          {/* the most difficult syntax part
+              in sort method, sort contents in a list according to the rule inside the argument */}
+          {/* Object.entries makes {"2025-01-15":[task1, task2], "2025-01-16":[task3],... } into 
+             => [["2025-01-15",[task1, task2]], ["2025-01-16",[task3]],... ] */}
           {/* inside the sort method [a] and [b] is assigned to "2025-01-15" and "2025-01-16" */}
           {Object.entries(tasksByDate)
             .sort(([a], [b]) => b.localeCompare(a))

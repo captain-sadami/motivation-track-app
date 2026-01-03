@@ -73,15 +73,6 @@ export async function GET(req: NextRequest) {
     maxAge: 60 * 60,
   })
 
-  console.log("=== CALLBACK DEBUG ===")
-  console.log("code:", code)
-  console.log("OIDC_REDIRECT_URI:", process.env.OIDC_REDIRECT_URI)
-  console.log("IDCS_DOMAIN:", process.env.NEXT_PUBLIC_IDCS_DOMAIN)
-  console.log("CLIENT_ID:", process.env.NEXT_PUBLIC_IDCS_CLIENT_ID)
-  console.log("CLIENT_SECRET exists:", !!process.env.IDCS_CLIENT_SECRET)
-  console.log("tokenUrl:", tokenUrl)
-
-
 
   // the subject is the server: the server returns res (NextResponse object).
   // the object (destination) is the browser: the server get 302 redirect response and obay that instruction.

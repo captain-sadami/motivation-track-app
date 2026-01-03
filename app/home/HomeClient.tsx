@@ -209,7 +209,7 @@ export default function HomeClient({ username, appUserId, tasks, goals }:
                   >
                     キャンセル
                   </button>
-                </div>                
+                </div>
               )}
             </div>
             {tasks
@@ -221,7 +221,7 @@ export default function HomeClient({ username, appUserId, tasks, goals }:
                     className="text-sm text-blue-400 hover:text-blue-300"
                     onClick={() => openProgressModal(t)}
                   >
-                    進捗を書く
+                    進捗記入
                   </button>
                 </div>)
               )
@@ -247,7 +247,7 @@ export default function HomeClient({ username, appUserId, tasks, goals }:
                   className="text-sm text-blue-400 hover:text-blue-300"
                   onClick={() => openProgressModal(t)}
                 >
-                  進捗を書く
+                  進捗記入
                 </button>
               </div>
               )
@@ -278,9 +278,9 @@ export default function HomeClient({ username, appUserId, tasks, goals }:
               />
 
               {/* close and send button */}
-              <div className="flex justify-end gap-2">
+              <div className="flex justify-between items-center">
                 <button onClick={()=>setShowModal(false)}
-                  className="px-3 py-1 rounded bg-gray-700 text-white hover:bg-gray-600"
+                  className="text-sm text-gray-400 hover:text-gray-200 whitespace-nowrap"
                 >
                   キャンセル
                 </button>
@@ -288,7 +288,7 @@ export default function HomeClient({ username, appUserId, tasks, goals }:
                   // when you write onClick={ addTask(appUserId) }, it runs immediately.
                   // when you give addTask function to onClick, you should wrap with {}.
                   onClick={() => addTask(appUserId)}
-                  className="px-3 py-1 rounded bg-blue-600 text-white hover:bg-blue-500"
+                  className="px-4 py-3 rounded bg-blue-600 text-white hover:bg-blue-500 whitespace-nowrap"
                 >
                   送信
                 </button>
