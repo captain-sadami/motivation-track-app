@@ -35,7 +35,11 @@ export async function POST(req: Request) {
   const objectName = `${appUserId}/${impulseType}/${imageUUID}.${ext}`;
 
   // construct objecct storage client
-  const provider = common.ResourcePrincipalAuthenticationDetailsProvider.builder();
+  //const provider = common.ResourcePrincipalAuthenticationDetailsProvider.builder();
+  const provider = new common.ConfigFileAuthenticationDetailsProvider(
+    "/home/node/.oci/config",
+    "DEFAULT"
+  );
   const client = new objectstorage.ObjectStorageClient({
       authenticationDetailsProvider: provider,
   });
