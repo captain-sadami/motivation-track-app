@@ -20,7 +20,7 @@ export default function LoginPage() {
     <div className="flex items-center justify-center h-full w-full">
       <div className="bg-gray-800 p-10 rounded-2xl shadow-xl max-w-md w-full text-center">
         <h1 className="text-3xl font-bold mb-4 text-white">
-          Welcome to the portfolio!
+          Welcome to the Motivation Tracker!
         </h1>
       
         <p className="text-gray-300 mb-6">

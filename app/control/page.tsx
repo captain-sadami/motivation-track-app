@@ -4,7 +4,6 @@ import jwt from "jsonwebtoken";
 import { createSupabaseServer } from "@/lib/supabaseServer"
 
 
-
 export default async function ControlPage(){
   // cookies is exptracted from request from brower..
   const cookie = await cookies()
@@ -40,7 +39,7 @@ export default async function ControlPage(){
         <h1 className="text-xl font-semibold text-gray-200">
           Beat yourself, {username.split(" ")[0]}!!
         </h1>
-        <ControlClient />;
+        <ControlClient />
       </div>
     </>
   )

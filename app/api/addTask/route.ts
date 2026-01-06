@@ -18,7 +18,7 @@ export async function POST(req:Request){
 
     if (error) {
       console.error(error);
-      return new Response("Error", { status: 500});
+      return new Response("Error", { status: 500 });
     }
 
     return new Response("OK", {status: 200 });

@@ -5,8 +5,14 @@ import { useState, useEffect } from "react";
 
 export default function ControlClient(){
   const [impulseType, setInpulseType] = useState<null|"alcohol"|"cheat"|"lust">(null)
+  const impulseLabelMap: Record<"alcohol" | "cheat" | "lust", string> 
+    = { "alcohol": "お酒", "cheat": "サボり", "lust": "肉欲"}
   const [title, setTitle] = useState<string>("");
   const [nonce, setNonce] = useState(0);
+  const [showModal, setShowModal] = useState(false);
+  const [selectedFile, setSelectedFile] = useState<File | null>(null)
+  const [inputTitle, setInputTitle] = useState("")
+  
 
   useEffect(()=>{
     if (!impulseType) return;
@@ -80,6 +86,7 @@ export default function ControlClient(){
               ❤️ 肉欲
             </button>
           </div>
+
           {impulseType && (
             <div className="flex flex-col items-center space-y-4">
               {/* impulse can be null from when you initiate useState so optional chain; ? is must. 
@@ -96,6 +103,88 @@ export default function ControlClient(){
                 className="max-w-md w-full rounded-xl shadow-md"
               />
             </div>
+          )}
+
+          {impulseType &&(
+            <button className="mt-3 bg-blue-600 text-white px-3 py-1 rounded hover:bg-blue-500"
+              onClick={()=> setShowModal(true)}
+            >
+              画像を追加
+            </button>
+          )}
+
+          {showModal && impulseType &&(
+            <div className="fixed inset-0 bg-black/50 flex justify-center items-center z-50">
+              <div className="bg-gray-900 rounded-xl p-6 w-full max-w-md space-y-4">
+                <h3 className="text-lg font-semibold text-white">
+                  {impulseLabelMap[impulseType]}用の画像を追加
+                </h3>
+                <p className="text-sm text-gray-400">
+                  負けそうなときに表示される画像とコメントを登録します
+                </p>
+                <input 
+                  type="text" 
+                  placeholder="喝なコメント"
+                  value={inputTitle}
+                  onChange={(e)=> {
+                    setInputTitle(e.target.value);  
+                  }}
+                  className="w-full p-2 rounded bg-gray-800 text-white placeholder-gray-400"
+                />
+                <input
+                  type="file"
+                  accept="image/*"
+                  // when file selection happens (an file is chosen), function is executed.
+                  // e.target is input element here.
+                  onChange={async (e) => {
+                   const file = e.target.files?.[0] ?? null;
+                   setSelectedFile(file)
+                  }}
+                  className="block w-full text-sm text-gray-400
+                             file:mr-4 file:py-2 file:px-4
+                             file:rounded file:border-0
+                             file:text-sm file:font-semibold
+                             file:bg-gray-700 file:text-white
+                             hover:file:bg-gray-600"
+                />
+
+                <div className="flex justify-end gap-3 pt-2">
+                  <button
+                    onClick={async ()=>{
+                      const form = new FormData();
+                      form.append("title", inputTitle)
+                      form.append("impulseType", impulseType!);
+                      if (!selectedFile) return;
+                      form.append("image", selectedFile);
+
+                      const res = await fetch("/api/uploadImage", {
+                        method: "POST",
+                        body: form,
+                      });
+                      if (!res.ok) { 
+                        alert("upload failed") 
+                      } else {
+                        setShowModal(false);
+                        setInputTitle("");
+                        setNonce(n => n+1)
+                      }
+                    }}
+                    className="px-4 py-2 rounded bg-blue-600 text-white hover:bg-blue-500"
+                  >
+                  送信
+                  </button>
+                  <button
+                    onClick={()=>{
+                      setInputTitle("");
+                      setShowModal(false);
+                    }}
+                    className="px-3 py-2 text-sm text-gray-400 hover:text-gray-200"
+                    >
+                    キャンセル
+                  </button>
+                </div>
+              </div>
+            </div> 
           )}
         </div>
       </div>
