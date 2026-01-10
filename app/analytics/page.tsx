@@ -1,6 +1,6 @@
 import { cookies } from "next/headers"
 import jwt from "jsonwebtoken";
-import AnalyticsClient  from "./AnalyticsClient"
+import AnalyticsClient  from "./AnalyticsClientReportBase"
 import { createSupabaseServer } from "@/lib/supabaseServer"
 
 

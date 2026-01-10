@@ -39,50 +39,68 @@ export default function AnalyticsClient({ username, appUserId, goals, tasks, dai
       return date.toISOString().slice(0,10);
       // "YYYY-MM-DD"
     }
-
     function getStartForRange(range: "week" | "month" | "all") {
       if (range==="all") return null;
-
       const d = new Date();
       d.setHours(0,0,0,0);
-
       if (range==="week") {
         d.setDate(d.getDate()-6);
         return d;
       }
-
       if (range==="month") {
         d.setDate(1);
         return d;
       }
-
       return null;
     }
 
+    function toJstDateKey(date: Date) {
+      const jst = new Date(date.getTime()+9*60*60*1000);
+      return jst.toISOString().slice(0,10);
+    }
 
     // inside <>, stirng literal type is asssined, which indicates string type and simultaneously a value
     const [range, setRange] = useState<"week" | "month" | "all">("week");
     const start = getStartForRange(range);
+    //console.log("start: ", start);
+    // start:  Sun Jan 04 2026 00:00:00 GMT+0900 (日本標準時)
+    // start:  Thu Jan 01 2026 00:00:00 GMT+0900 (日本標準時)
+    // start:  null
 
+    const filteredDailySummaries = dailySummaries.filter(s=>{
+      if (!s.summary_date) return false;
+      if (!start) return true;
+
+      console.log("s.summary_date", s.summary_date);
+      return (new Date(s.summary_date) >= start);
+      
+    })
+
+    const dailySummariesByDate = filteredDailySummaries.reduce((ret, s)=> {
+      const key = toJstDateKey(new Date(s.summary_date));
+      if (!ret[key]) ret[key] = [];
+      ret[key].push(s)
+
+      return ret;
+    },{} as Record<string, DailySummary[]>)
+    
+    
     const filteredTasks = tasks.filter(t=>{
       if (!t.completed_at) return false;
-      if (!start) return true; // null is returned when range==="all" see getStartForRange
-
+      if (!start) return true; // null is returned when range==="all" see getStartForRang
       const completed = new Date(t.completed_at);
+      //console.log("completed: ", completed)
+      // completed:  Fri Dec 26 2025 14:13:10 GMT+0900 (日本標準時)
+      // ...
+      // completed:  Thu Jan 08 2026 14:23:26 GMT+0900 (日本標準時)
       return completed >= start;
     });
-
-    const goalMap = Object.fromEntries(
-      goals.map(g=>[g.id, g])
-    );
-    // [ [1, {id: 1, title:"go to gym",}], [2, {id:2, title:"study"}] ]
 
     // initilly acc is {} which is initiated by last part
     // when you use reduce, you can avoid defining result variable outside of the for roop!
     // acc is corresponding to the resutl variable, here.
     const tasksByDate = filteredTasks.reduce((acc, t)=> {
-      const key = toDateKey(new Date(t.completed_at));
-
+      const key = toJstDateKey(new Date(t.completed_at));
       if (!acc[key]) acc[key] = [];
       acc[key].push(t);
 
@@ -90,20 +108,24 @@ export default function AnalyticsClient({ username, appUserId, goals, tasks, dai
     }, {} as Record<string, Task[]>);
     // Record<Key, Value>
     
+    
+    const goalMap = Object.fromEntries(
+      goals.map(g=>[g.id, g])
+    );
+    // [ [1, {id: 1, title:"go to gym",}], [2, {id:2, title:"study"}] ]
+
 
     const sentimentSeries = dailySummaries
       .filter(s => {
         if (!start) return true;
-        const d = new Date(s.summary_date);
-        return d >=start;
+        return new Date(s.summary_date) >= start;
       })
       .sort((a, b) => a.summary_date.localeCompare(b.summary_date))
       .map(s => ({
-        date: toDateKey(new Date(s.summary_date)),
+        date: toJstDateKey(new Date(s.summary_date)),
         sentiment: s.sentiment,
       }));
 
-      
     function SentimentMiniGraph({
         data,
       }: {
@@ -179,7 +201,7 @@ export default function AnalyticsClient({ username, appUserId, goals, tasks, dai
                 `}
                   onClick={() => setRange("week")}
               >
-                今週
+                直近一週間
               </button>
 
               <button
@@ -213,74 +235,67 @@ export default function AnalyticsClient({ username, appUserId, goals, tasks, dai
             </div>
           </div>
           
-          {/* the most difficult syntax part
-              in sort method, sort contents in a list according to the rule inside the argument */}
-          {/* Object.entries makes {"2025-01-15":[task1, task2], "2025-01-16":[task3],... } into 
-             => [["2025-01-15",[task1, task2]], ["2025-01-16",[task3]],... ] */}
-          {/* inside the sort method [a] and [b] is assigned to "2025-01-15" and "2025-01-16" */}
-          {Object.entries(tasksByDate)
+        
+          {Object.entries(dailySummariesByDate)
             .sort(([a], [b]) => b.localeCompare(a))
-            .map(([date, tasks]) => (
-              <div key={date} className="bg-gray-900/40 rounded-xl p-4 mb-8">
+            .map(([dateKey, dailySummaries]) => (
+              <div key={dateKey} className="bg-gray-900/40 rounded-xl p-4 mb-8">
                 {/* the header part per date */}
                 <h3 className="text-lg font-semibold text-gray-300 mb-3">
-                  {date}に達成したタスク
+                  {dateKey}の要約
                 </h3>
                 {/* the accomplished task part per date */}
                 <div className="space-y-4">
-                {dailySummaries
-                  .filter((s)=>
-                    s.user_id===appUserId &&
-                    toDateKey(new Date(s.summary_date))===date
-                  )
-                  .map(s => {
-                    const label = 
-                      s.sentiment===2 ? "😀 最高！":
-                      s.sentiment===1 ? "🙂 良い感じ":
-                      s.sentiment===0 ? "😐 ふつう":
-                      s.sentiment===-1 ? "😵 しんどめ":
-                      s.sentiment===-2 ? "🤢 最悪":
-                      "";
+                  {dailySummaries
+                    .filter((s)=>toJstDateKey(new Date(s.summary_date))===dateKey)
+                    .map(s => {
+                      const label = 
+                        s.sentiment===2 ? "😀 最高！":
+                        s.sentiment===1 ? "🙂 良い感じ":
+                        s.sentiment===0 ? "😐 ふつう":
+                        s.sentiment===-1 ? "😵 しんどめ":
+                        s.sentiment===-2 ? "🤢 最悪":
+                        "";
 
-                    return(
-                      <div
-                        key={s.id}
-                        className="bg-[#e9e5dc] rounded-xl p-5 mb-6"
-                      >
-                        <div className="text-sm font-semibold text-gray-700 mb-2 tracking-wide">
-                          🪄 AIサマリー日報
+                      return(
+                        <div
+                          key={s.id}
+                          className="bg-[#e9e5dc] rounded-xl p-5 mb-6"
+                        >
+                          <div className="text-sm font-semibold text-gray-700 mb-2 tracking-wide">
+                            🪄 AIサマリー日報
+                          </div>
+                          <div className="text-[#1f2933] text-sm leading-relaxed whitespace-pre-wrap">
+                            メンタル分析：{label}
+                          </div>
+                          <p className="text-[#1f2933] text-sm leading-relaxed whitespace-pre-wrap">
+                            {s.content_md}
+                          </p>
                         </div>
-                        <div className="text-[#1f2933] text-sm leading-relaxed whitespace-pre-wrap">
-                          メンタル分析：{label}
-                        </div>
-                        <p className="text-[#1f2933] text-sm leading-relaxed whitespace-pre-wrap">
-                          {s.content_md}
-                        </p>
-                      </div>
-                    );
-                  })
-                }
+                      );
+                    })
+                  }
 
-                {tasks.map(t=>{
-                  const goal = t.goal_id ? goalMap[t.goal_id] : null;
-
-                  return (
-                    <div
-                      key={t.id}
-                      className="text-gray-200 py-2 px-3 bg-gray-800 rounded-lg mb-1"
-                    >
-                      <div className="flex justify-between items-center">
-                        <span>{t.title}</span>
-                        {goal && (
-                          <span className="text-xs text-gray-400 ml-2">
-                            {goal.title}
-                          </span>
-                        )}
-                      </div>
-                    </div>
-                  );
-                })}
-               </div>
+                  {(tasksByDate[dateKey] ?? []).map(t => {
+                        const goal = t.goal_id ? goalMap[t.goal_id] : null;
+                        return (
+                          <div
+                            key={t.id}
+                            className="text-gray-200 py-2 px-3 bg-gray-800 rounded-lg mb-1"
+                          >
+                            <div className="flex justify-between items-center">
+                              <span>{t.title}</span>
+                              {goal && (
+                                <span className="text-xs text-gray-400 ml-2">
+                                  {goal.title}
+                                </span>
+                              )}
+                            </div>
+                          </div>
+                        )
+                      })
+                  }
+                </div>
               </div>
             ))
           }
