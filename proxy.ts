@@ -42,7 +42,6 @@ export async function proxy(req: NextRequest) {
   })
 
   const data = await resp.json()
-
   if (!data.active) {
     return NextResponse.redirect(new URL("/login", req.url))
   }
@@ -52,7 +51,7 @@ export async function proxy(req: NextRequest) {
 
 // white list
 export const config = {
-  matcher: [
+  matcher: [      
     "/home/:path*",
     "/profile/:path*"
   ],

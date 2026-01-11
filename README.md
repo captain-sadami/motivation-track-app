@@ -1,36 +1,97 @@
-This is a [Next.js](https://nextjs.org) project bootstrapped with [`create-next-app`](https://nextjs.org/docs/app/api-reference/cli/create-next-app).
+## プロジェクト概要
+The Motivation Trackerは目標達成に向けたタスク管理と、タスク遂行の鍵となるモチベーションを管理するためのツールです。
 
-## Getting Started
+仕事と趣味で向上を目指すとき、思い描いていた結果が得られない理由は全てモチベーションに起因すると考えます。
+モチベーションが維持できない要因として、以下の点が挙げられます。
+課題1. 目標を意識できていない、忘れてしまう
+課題2. 目標に対するスモールステップを整理できていない
+課題3. 成し遂げてきたスモールステップが追えず進んでいる実感を得られない（日報レベルの記録が面倒である）
+課題4. メンタル面の管理ができていない
+課題5. 誘惑に負けて別のことにかまけてしまう
 
-First, run the development server:
+このアプリでは、上記の課題を解決するための機能を提供します。
 
-```bash
-npm run dev
-# or
-yarn dev
-# or
-pnpm dev
-# or
-bun dev
-```
+## アプリの機能
+上記の要因に対応するための機能3つを提供します。
+### 機能1. 目標とタスク管理（課題1, 2への対応）
+目標とそれに紐づくタスクを登録し、やるべきことを常に把握できるようにします。
+手をつけたタスクに進捗を記入し、進捗データを保存します。
+完了したタスクは非表示にでき、進捗データとして記録されます。
 
-Open [http://localhost:3000](http://localhost:3000) with your browser to see the result.
+### 機能2. 進捗分析（課題3, 4への対応）
+機能1で記入した進捗をもとに、日報をAIにより作成し表示します。
+日報は5段階のセンチメント分析を含み、ページ上部に時系列でプロットされます
+（メンタルの落ち込みが続くと、登録されたメールアドレス宛に発報する機能を実装予定です）。
+期間で表示の絞り込みができ、直近一週間、今月、全ての3パターンが可能です。
 
-You can start editing the page by modifying `app/page.tsx`. The page auto-updates as you edit the file.
+### 機能3. 誘惑回避（課題5への対応）
+モチベーションの大敵である誘惑に負けそうなとき、自分に喝を入れるためのオリジナルmeme（ミーム）を登録、表示できます。
+特にお酒、サボり、肉欲の三つの欲でジャンル分けして登録することができます。
+登録したmemeはランダムに表示されます。
+![スクリーンショット 2026-01-10 23.47.36.png](https://objectstorage.ap-osaka-1.oraclecloud.com/p/b2jLk7ZxNEXQP3UzPEjT6RlkhuXiTmpdq11ExHjofm1gWxIUfbw5KXgoaCQaScjx/n/axkfriwa5i0w/b/temp-bucket/o/%E3%82%B9%E3%82%AF%E3%83%AA%E3%83%BC%E3%83%B3%E3%82%B7%E3%83%A7%E3%83%83%E3%83%88%202026-01-11%2013.00.48.png)
 
-This project uses [`next/font`](https://nextjs.org/docs/app/building-your-application/optimizing/fonts) to automatically optimize and load [Geist](https://vercel.com/font), a new font family for Vercel.
 
-## Learn More
+## 技術スタックと工夫点
+- フロントエンドフレームワーク: React
+- CSSフレームワーク: TailwindCSS
+- サーバーランタイム: Node.js
+- アプリケーション基盤: Docker
+- データベース: Supabase
+- IaaSとIdp: Oracle Cloud Infrastructure
+    - IaaS
+        - Virtual Cloud Networkと各種ゲートウェイ
+        - Compute Instance
+        - Public/Private DNS
+        - Object Storage
+    - Idp: Identity Domains
+- その他: OpenAI API 
 
-To learn more about Next.js, take a look at the following resources:
 
-- [Next.js Documentation](https://nextjs.org/docs) - learn about Next.js features and API.
-- [Learn Next.js](https://nextjs.org/learn) - an interactive Next.js tutorial.
+### 工夫点1: 安全性
+認証基盤をIdentity Domainsに委任することでユーザーの名前や連絡先などの秘匿性の高い情報をデータベースに保持していません。
+クライアントは認証に必要なトークンをHttpOnly Cookieとして保持し、一定期間だけログイン状態を保持します。
+Next.jsのproxy.tsを通じて、bearerトークンの有効性をIntrospectionによって検証します。
 
-You can check out [the Next.js GitHub repository](https://github.com/vercel/next.js) - your feedback and contributions are welcome!
+通信の流れは以下の通りです。
+- 通信0: （キャッシュがない場合）クライアントからパブリックDNSに問い合わせし、コンピュート・インスタンスのパブリックIPアドレスを取得
+- 通信1: コンピュート・インスタンス上のNginxコンテナに接続
+- 通信2: Nginxコンテナが通信をプロキシし、Appコンテナへ接続
+- 通信3, 4: 受けとったクッキーで、Appコンテナがアプリ上のユーザーIDやユーザー名などをIdentity Domainsに問い合わせ、応答
+- 通信5, 6: 受け取ったユーザーIDをもとにアプリでSupabaseへSQLクエリを発行、応答を受け取る
+- 通信7, 8: アプリのレスポンスを、Nginxコンテナでプロキシし、クライアントへ返却する
 
-## Deploy on Vercel
+![architecture.png](https://objectstorage.ap-osaka-1.oraclecloud.com/p/_bwo_2VICCSXVjc6Z55arR789umBa8Fzujv2w9KvEp7F25n1UgQMJ3qBc1WcOQiv/n/axkfriwa5i0w/b/temp-bucket/o/architecture.png)
 
-The easiest way to deploy your Next.js app is to use the [Vercel Platform](https://vercel.com/new?utm_medium=default-template&filter=next.js&utm_source=create-next-app&utm_campaign=create-next-app-readme) from the creators of Next.js.
 
-Check out our [Next.js deployment documentation](https://nextjs.org/docs/app/building-your-application/deploying) for more details.
+### 工夫点2: 将来的な拡張性を考慮した設計
+ユーザー数が増えたり、一部のアプリとインフラの変更があっても大規模な作り直しが必要ないように意識して設計しました。特に以下の点がポイントです。
+
+- 基盤の変更やスケールアウトをしやすいようにアプリをコンテナ化
+- オブジェクト・ストレージやデータベースを利用しコンピュート・インスタンスでのデータを腹持ち回避
+- リバースプロキシとしてNginxをアプリの前に配置することでAppコンテナがスケールアウトしてもアプリを書き換え不要に
+
+
+### 工夫点3: メンテナンスとトラブル時の原因切り分けを想定したアプリ設計
+同じ操作をモジュール化したりデータベースの変更を伴う処理をAPI化することで、役割分担を明確化し、メンテナンスやトラブル時の原因切り分けがしやすいように意識しました。
+
+@/auth/callback: 認証情報をもとにクッキーをクライアントにsetする
+@/apiフォルダ配下
+- addProgress: 入力した進捗をデータベースに登録
+- uploadImage: 誘惑回避meme画像をオブジェクト・ストレージにアップロード
+- dailySummaryBatch: AI日報作成のための日次バッチ処理のためのPOSTリクエストを受ける本体
+など
+
+@/libフォルダ配下
+- analyzeMotivation: dailySummaryBatchで整形されたデータをもとにOpenAI APIへリクエスト
+- getAppUsers: Identity Domainsからユーザー情報の取得
+- supabaseClients/Servers: supabaseオブジェクトの作成
+
+@/proxy.tsx：ユーザー認証の状態をクッキーをもとにチェックし、遷移先URLを設定する
+@/page.tsx: ルートへのアクセス時のリダイレクト先を指定
+@/layout.tsx: ユニバーサルなログイン時の画面表示
+@/uiフォルダ: layout.tsxの外枠として、以下のアプリ機能を中心としたサイドメニューの表示（レスポンシブ対応済）
+@/homeフォルダ: アプリ機能1
+@/analyticsフォルダ: アプリ機能2
+@/controlフォルダ: アプリ機能3
+@/loginフォルダ: ログイン機能
+@/logoutフォルダ: ログアウト機能
