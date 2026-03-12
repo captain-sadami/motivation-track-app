@@ -1,4 +1,4 @@
-// layout.tsx designs "layout".
+  // layout.tsx designs "layout".
 // layout.tsx is read firstly, after that, the content of page.tsx assigned to { chidlen }.
 // layout.tsx and pages.tsx are composed, it starts to render.
 // Even if layout.tsx is used in client, children part runs as SSR.
@@ -63,9 +63,3 @@ export default async function RootLayout({
 // are rerun but state never override shouldConnect as false.
 // Once shouldConnect has true, useState never override it.
 
-
-// めっちゃ難しいからここだけ日本語で理解を残しておくと、
-// ユースケースとしては、一回きり処理したいパターンっていうのはこうやるしかない。
-// layout.tsxはマウントされ続けるという点でuseEffectとの相性が非常に良く、
-// useStateで変数を制御しないと描画のし直しができないことと、
-// 描画したときに単なる代入だと上からコードをなぞって実行するのでまたfalseが入ってしまう
