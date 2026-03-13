@@ -145,7 +145,7 @@ export default function ControlClient(){
               "
             >
               < DesireIcon />
-              <span> 肉欲 </span>
+              <span> その他の煩悩 </span>
             </button>
           </div>
 

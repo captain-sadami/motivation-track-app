@@ -154,7 +154,8 @@ export default function HomeLayout({ children, username
             <span className="text-lg">{username.split(" ")[0]}</span>
           </div>
           <button onClick={() => (window.location.href="/logout")}
-            className="flex items-center gap-1 px-4 py-2 hover:bg-gray-800">
+            className="inline-flex items-center gap-1 px-4 py-2 hover:bg-gray-800"
+          >
             <LogoutIcon /> 
             <span className="text-lg">Logout</span>
           </button>

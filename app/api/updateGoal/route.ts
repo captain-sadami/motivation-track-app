@@ -20,6 +20,9 @@ export async function POST(req: Request){
       if (error) {
         return NextResponse.json({ error: error.message }, { status:400 });
       }
+
+    // added 3/13/2026; return otherwise inserting follows every time edit goal.
+    return NextResponse.json({ ok: true }); // ← ここ重要
   }
 
   // when registering new goal
