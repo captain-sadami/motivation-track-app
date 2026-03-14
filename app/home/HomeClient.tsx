@@ -216,9 +216,9 @@ export default function HomeClient({ username, appUserId, tasks, goals }:
               .filter(t => t.goal_id===g.id && !t.is_completed)
               .map(t => 
                 (<div key={t.id} className="text-gray-200 py-1 px-2 bg-gray-800 rounded-lg mb-1 max-w-xl flex justify-between items-center">
-                  <span>{t.title}</span>
+                  <span className="truncate">{t.title}</span>
                   <button
-                    className="text-sm text-blue-400 hover:text-blue-300"
+                    className="flex-shrink-0 whitespace-nowrap text-sm text-blue-400 hover:text-blue-300"
                     onClick={() => openProgressModal(t)}
                   >
                     進捗記入

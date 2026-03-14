@@ -154,7 +154,7 @@ export default function HomeLayout({ children, username
             <span className="text-lg">{username.split(" ")[0]}</span>
           </div>
           <button onClick={() => (window.location.href="/logout")}
-            className="inline-flex items-center gap-1 px-4 py-2 hover:bg-gray-800"
+            className="flex w-full items-center gap-1 px-4 py-2 hover:bg-gray-800"
           >
             <LogoutIcon /> 
             <span className="text-lg">Logout</span>
@@ -164,8 +164,10 @@ export default function HomeLayout({ children, username
 
       {/* <main className="flex-1 overflow-y-auto bg-gray-800 text-white p-6"> */}
       <main className="flex-1 overflow-y-auto bg-gray-800 text-white p-4 md:p-6 pb-20 md:pb-6">
-        {shouldConnect && <WebSocketClient />}
-        {children}
+        <div className="max-w-5xl mx-auto w-full">
+          {shouldConnect && <WebSocketClient />}
+          {children}
+        </div>
       </main>
 
       {/* Mobile Bottom Navigation */}
