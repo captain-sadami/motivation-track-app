@@ -59,7 +59,7 @@ export async function GET(req: NextRequest) {
 
   res.cookies.set("access_token", data.access_token, {
     httpOnly: true,
-    secure: false, // TODO: true for production
+    secure: true, // Done: 3/14/2026
     //sameSite: "strict", // added 12/1
     sameSite: "lax", //added 1/2
     path: "/",
@@ -68,7 +68,7 @@ export async function GET(req: NextRequest) {
 
   res.cookies.set("id_token", data.id_token, {
     httpOnly: true,
-    secure: false,
+    secure: true, //Done: 3/14/2026
     path: "/",
     maxAge: 60 * 60,
   })
