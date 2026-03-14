@@ -73,7 +73,6 @@ export async function GET(req: NextRequest) {
     maxAge: 60 * 60,
   })
 
-
   // the subject is the server: the server returns res (NextResponse object).
   // the object (destination) is the browser: the server get 302 redirect response and obay that instruction.
   return res

@@ -5,16 +5,15 @@ import { NextRequest, NextResponse } from "next/server"
 // such as middleware, routes..
 // NextRequest or Next Response is for server side, when "use client", it is not needed.
 export async function proxy(req: NextRequest) {
-  //black list
   const path = req.nextUrl.pathname
   
-  if (
-    path.startsWith("/login") ||
-    path.includes("/auth/callback") ||
-    path.startsWith("/api/ws")
-  ) {
-    return NextResponse.next()
-  }
+  //if (
+  //  path.startsWith("/login") ||
+  //  path.includes("/auth/callback") ||
+  //  path.startsWith("/api/ws")
+  //) {
+  //  return NextResponse.next()
+  //}
 
   const token = req.cookies.get("access_token")?.value
   if (!token) {
@@ -38,6 +37,7 @@ export async function proxy(req: NextRequest) {
   })
 
   const data = await resp.json()
+  
   if (!data.active) {
     return NextResponse.redirect(new URL("/login", req.url))
   }
@@ -45,10 +45,16 @@ export async function proxy(req: NextRequest) {
   return NextResponse.next()
 }
 
-// white list
+
 export const config = {
-  matcher: [      
-    "/home/:path*",
-    "/profile/:path*"
-  ],
+  // white list
+  //matcher: [      
+  //  "/home/:path*",
+  //  "/profile/:path*"
+  //],
+
+  // turned it into black list: 3/14/2026
+  matcher: [
+    "/((?!login|auth/callback|api/ws|_next|favicon.ico).*)",
+  ]
 };
