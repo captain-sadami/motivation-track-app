@@ -8,10 +8,6 @@ export async function proxy(req: NextRequest) {
   //black list
   const path = req.nextUrl.pathname
   
-  if (path.startsWith("/api/ws")) {
-    return NextResponse.next();
-  }
-
   if (
     path.startsWith("/login") ||
     path.includes("/auth/callback") ||
