@@ -10,6 +10,14 @@ import { createSupabaseServer } from "@/lib/supabaseServer"
 
 
 export async function POST(req: Request) {
+  // User authentication is the first todo
+  const user = await getAppUser();
+  if (!user) { 
+    return new Response("Unauthorized", {status: 401});
+  }
+  const { appUserId } = user;
+
+  // start file manipulation
   const form = await req.formData();
   const file = form.get("image") as File | null;
   const impulseType = form.get("impulseType") as string | null;
@@ -21,13 +29,6 @@ export async function POST(req: Request) {
   // convert arraybuffer to the node.js buffer in order to put oci objectstrage api.
   const buffer = Buffer.from(await file.arrayBuffer());
   
-  // get appUserId
-  const user = await getAppUser();
-  if (!user) { 
-    return new Response("Unauthorized", {status: 401});
-  }
-  const { appUserId } = user;
-
   // get file extension
   const originalFileName = file.name; // e.g. cat.png
   const imageUUID=crypto.randomUUID();
@@ -35,11 +36,23 @@ export async function POST(req: Request) {
   const objectName = `${appUserId}/${impulseType}/${imageUUID}.${ext}`;
 
   // construct objecct storage client
-  //const provider = common.ResourcePrincipalAuthenticationDetailsProvider.builder();
-  const provider = new common.ConfigFileAuthenticationDetailsProvider(
-    "/home/node/.oci/config",
-    "DEFAULT"
-  );
+  //const provider = new common.ConfigFileAuthenticationDetailsProvider(
+  //  "/home/node/.oci/config",
+  //  "DEFAULT"
+  //);
+
+  const privateKey = process.env.OCI_PRIVATE_KEY!.replace(/\\n/g, '\n');
+
+  const provider = new common.SimpleAuthenticationDetailsProvider(
+  process.env.OCI_TENANCY_ID!,
+  process.env.OCI_USER_ID!,
+  process.env.OCI_FINGERPRINT!,
+  privateKey,
+  process.env.OCI_PASSPHRASE || null,
+  common.Region.AP_OSAKA_1
+);
+
+
   const client = new objectstorage.ObjectStorageClient({
       authenticationDetailsProvider: provider,
   });
