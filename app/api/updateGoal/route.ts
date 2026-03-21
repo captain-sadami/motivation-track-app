@@ -1,13 +1,19 @@
 import { createSupabaseServer } from "@/lib/supabaseServer";
 import { NextResponse } from "next/server";
+import { getAppUser } from "@/lib/getAppUser";
 
 
 export async function POST(req: Request){
+  // confirm authentication status firstly
+  const user = await getAppUser();
+  if (!user) {
+    return NextResponse.json({ error: "Unauthorized" }, { status: 401 });
+  }
+
   const { goal_id, title, description, identity_id } = await req.json();
   const supabase = createSupabaseServer();
-  console.log("step1")
 
-  // when editing existing goal
+  // when editing an existing goal
   if (goal_id) {
     const { error } = await supabase
       .from("goals")
@@ -15,7 +21,8 @@ export async function POST(req: Request){
         title,
         description,
       })
-      .eq("id", goal_id);
+      .eq("id", goal_id)
+      .eq("owner_id", user.guid);
 
       if (error) {
         return NextResponse.json({ error: error.message }, { status:400 });
@@ -25,13 +32,13 @@ export async function POST(req: Request){
     return NextResponse.json({ ok: true }); // ← ここ重要
   }
 
-  // when registering new goal
+  // when registering a new goal
   const { error } = await supabase
     .from("goals")
     .insert({
       title,
       description,
-      owner_id: identity_id,
+      owner_id: user.guid, // not using request body but real user.guid
       is_active: true,
     });
 
