@@ -173,16 +173,21 @@ export default function HomeLayout({ children, username
       {/* Mobile Bottom Navigation */}
       <nav className="fixed bottom-0 left-0 right-0 md:hidden bg-gray-900 border-t border-gray-700 flex justify-around py-2 text-white">
         <Link href="/home" className="flex flex-col items-center text-xs">
-          <HomeIcon />
-          <span className="text-lg">🏠️</span>
+          <span className="text-lg">
+            <HomeIcon />
+          </span>
           ホーム
         </Link>
         <Link href="/analytics" className="flex flex-col items-center text-xs">
-          <span className="text-lg">📈</span>
+          <span className="text-lg">
+            <AnalyticsIcon />
+          </span>
           分析
         </Link>
         <Link href="/control" className="flex flex-col items-center text-xs">
-          <span className="text-lg">🧠</span>
+          <span className="text-lg">
+            <ControlIcon />
+          </span>
           管理
         </Link>
       </nav>
