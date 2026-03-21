@@ -1,11 +1,18 @@
 import { NextResponse } from "next/server";
 import { createSupabaseServer } from "@/lib/supabaseServer";
+import { getAppUser } from "@/lib/getAppUser";
+
 
 // POST is a endpoint for fetch with POST method request from page.tsx
 export async function POST(req: Request) {
-  console.log("/api/registerUesr/route.ts is called!");
+  const user = await getAppUser();
+  if (!user) {
+    return NextResponse.json({ error: "Unauthorized" }, { status:401 });
+  }
 
-  const { identity_id } = await req.json();
+  //const { identity_id } = await req.json();
+  const identity_id = user.guid;
+
   if (!identity_id) {
     return NextResponse.json(
       { error: "identity_id is requered" },

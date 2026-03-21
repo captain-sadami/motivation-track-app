@@ -7,14 +7,6 @@ import { NextRequest, NextResponse } from "next/server"
 export async function proxy(req: NextRequest) {
   const path = req.nextUrl.pathname
   
-  //if (
-  //  path.startsWith("/login") ||
-  //  path.includes("/auth/callback") ||
-  //  path.startsWith("/api/ws")
-  //) {
-  //  return NextResponse.next()
-  //}
-
   const token = req.cookies.get("access_token")?.value
   if (!token) {
     return NextResponse.redirect(new URL("/login", req.url))
@@ -55,6 +47,6 @@ export const config = {
 
   // turned it into black list: 3/14/2026
   matcher: [
-    "/((?!login|auth/callback|api/ws|_next|favicon.ico).*)",
+    "/((?!login|auth/callback|api/ws|_next|favicon.ico|api/dailySummaryBatch).*)",
   ]
 };
