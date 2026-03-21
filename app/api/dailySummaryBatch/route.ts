@@ -5,7 +5,16 @@ import { analyzeMotivation, TaskProgress} from "@/lib/analyzeMotivation";
 
 export const runtime = "nodejs";
 
-export async function POST() {
+export async function POST(req: Request) {
+  const authHeader = req.headers.get("authorization")
+
+  // add atuhentication process 3/21
+  if (authHeader != `Bearer ${process.env.CRON_SECRET}`){
+    console.error("Unauthorized cron access attempt")
+    return new Response("Unauthorized", { status: 401 });
+  }
+
+
   console.log("dailySummaryBatch POST called");
   try {
     const supabase = createSupabaseServer();
