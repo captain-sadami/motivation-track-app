@@ -176,19 +176,19 @@ export default function HomeLayout({ children, username
           <span className="text-lg">
             <HomeIcon />
           </span>
-          ホーム
+          Home
         </Link>
         <Link href="/analytics" className="flex flex-col items-center text-xs">
           <span className="text-lg">
             <AnalyticsIcon />
           </span>
-          分析
+          Analytics
         </Link>
         <Link href="/control" className="flex flex-col items-center text-xs">
           <span className="text-lg">
             <ControlIcon />
           </span>
-          管理
+          Control
         </Link>
       </nav>
     </div>
