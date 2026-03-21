@@ -22,14 +22,14 @@ export async function POST(req: Request){
         description,
       })
       .eq("id", goal_id)
-      .eq("owner_id", user.guid);
+      .eq("owner_id", user.appUserId);
 
       if (error) {
         return NextResponse.json({ error: error.message }, { status:400 });
       }
 
-    // added 3/13/2026; return otherwise inserting follows every time edit goal.
-    return NextResponse.json({ ok: true }); // ← ここ重要
+    // added 3/13/2026; return otherwise inserting follows every time edit a goal.
+    return NextResponse.json({ ok: true });
   }
 
   // when registering a new goal
@@ -38,7 +38,7 @@ export async function POST(req: Request){
     .insert({
       title,
       description,
-      owner_id: user.guid, // not using request body but real user.guid
+      owner_id: user.appUserId, // not using a request body but a real user.appUserId
       is_active: true,
     });
 

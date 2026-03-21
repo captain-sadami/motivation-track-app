@@ -1,18 +1,22 @@
 import {NextResponse} from "next/server";
 import { createSupabaseServer } from "@/lib/supabaseServer";
+import { getAppUser } from "@/lib/getAppUser";
 
 
 export async function POST(req: Request) {
   try {
-    const body = await req.json();
-    const task_id = body.task_id;
-    const user_id = body.user_id;
-    const comment = body.comment;
-    const mark_as_completed = body.mark_as_completed
+    const user = await getAppUser();
+    if (!user) {
+      return NextResponse.json({ error: "Unauthorized" }, { status:401 });
+    }
 
-    if (!task_id || !user_id || !comment) {
+    const verified_app_user_id = user.appUserId; 
+    const body = await req.json();
+    const { task_id, comment, mark_as_completed } = body;
+
+    if (!task_id || !comment) {
       return NextResponse.json(
-        { error:"task_id, user_id, comment are required" },
+        { error:"task_id, comment are required" },
         { status: 400 }
       );
     }
@@ -24,28 +28,25 @@ export async function POST(req: Request) {
       .from("progress")
       .insert({
         task_id,
-        user_id,
+        user_id: verified_app_user_id,
         comment,
       });
       
     if (mark_as_completed) {
-      await supabase
+      const { error: updateError } = await supabase
         .from("tasks")
         .update({
           is_completed: true,
           completed_at: new Date().toISOString(),
         })
         .eq("id", task_id)
+        .eq("user_id", verified_app_user_id);
+      
+        if (updateError) throw updateError;
     }
 
-    if (error){
-      console.error(error);
-      return NextResponse.json(
-        { error: "failed to insert progress" },
-        { status: 500 }
-      );
-    }
     return NextResponse.json({ ok: true });
+    
   } catch (err) {
     return NextResponse.json(
       { error: "failed to add progress" },
