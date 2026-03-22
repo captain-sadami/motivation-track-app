@@ -247,7 +247,7 @@ export default function AnalyticsClient({ username, appUserId, goals, tasks, dai
                 {/* the accomplished task part per date */}
                 <div className="space-y-4">
                   {dailySummaries
-                    .filter((s)=>toJstDateKey(new Date(s.summary_date))===dateKey)
+                    //.filter((s)=>toJstDateKey(new Date(s.summary_date))===dateKey)
                     .map(s => {
                       const label = 
                         s.sentiment===2 ? "😀 最高！":
