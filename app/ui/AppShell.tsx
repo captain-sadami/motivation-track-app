@@ -1,101 +1,9 @@
 "use client";
 
 import { useEffect, useState, ReactNode } from "react";
-import WebSocketClient from "../home/WebSocketClient";
+import { HomeIcon, AnalyticsIcon, ControlIcon, UserIcon, LogoutIcon } from "@/components/icons"
+//import WebSocketClient from "@/home/WebSocketClient";
 import Link from "next/link";
-
-function HomeIcon() {
-  return (
-    <svg
-      width="20"
-      height="20"
-      viewBox="0 0 24 24"
-      fill="none"
-      stroke="currentColor"
-      strokeWidth="1.5"
-      strokeLinecap="round"
-      strokeLinejoin="round"
-    >
-      <path d="M4 11L12 4l8 7" />
-      <path d="M6 10v10h12V10" />
-    </svg>
-  );
-}
-
-function AnalyticsIcon() {
-  return (
-    <svg
-      className="w-5 h-5"
-      viewBox="0 0 24 24"
-      fill="none"
-      stroke="currentColor"
-      strokeWidth="1.5"
-      strokeLinecap="round"
-      strokeLinejoin="round"
-    >
-      <path d="M4 18V6" />
-      <path d="M4 18H20" />
-      <path d="M7 15L11 11L14 13L19 8" />
-    </svg>
-  );
-}
-
-function ControlIcon() {
-  return (
-    <svg
-      className="w-5 h-5"
-      viewBox="0 0 24 24"
-      fill="none"
-      stroke="currentColor"
-      strokeWidth="1.5"
-      strokeLinecap="round"
-      strokeLinejoin="round"
-    >
-      <line x1="4" y1="6" x2="20" y2="6" />
-      <circle cx="9" cy="6" r="2" />
-      <line x1="4" y1="12" x2="20" y2="12" />
-      <circle cx="15" cy="12" r="2" />
-      <line x1="4" y1="18" x2="20" y2="18" />
-      <circle cx="11" cy="18" r="2" />
-    </svg>
-  );
-}
-
-function UserIcon() {
-  return (
-    <svg
-      className="w-5 h-5"
-      viewBox="0 0 24 24"
-      fill="none"
-      stroke="currentColor"
-      strokeWidth="1.5"
-      strokeLinecap="round"
-      strokeLinejoin="round"
-    >
-      <circle cx="12" cy="8" r="4" />
-      <path d="M4 20c0-4 4-6 8-6s8 2 8 6" />
-    </svg>
-  );
-}
-
-function LogoutIcon() {
-  return (
-    <svg
-      className="w-5 h-5"
-      viewBox="0 0 24 24"
-      fill="none"
-      stroke="currentColor"
-      strokeWidth="1.5"
-      strokeLinecap="round"
-      strokeLinejoin="round"
-    >
-      <path d="M16 17l5-5-5-5" />
-      <path d="M21 12H9" />
-      <path d="M12 19H5a2 2 0 0 1-2-2V7a2 2 0 0 1 2-2h7" />
-    </svg>
-  );
-}
-
 
 
 // {children} will use when returns.
@@ -149,7 +57,7 @@ export default function HomeLayout({ children, username
         {/* profile */}
         <div>
           {/* No file can provide props to layout.tsx, so after rendering, change it by javascript in HomeClient.tsx */}
-          <div id="sidebar-username" className="flex items-center gap-1 px-4 py-2 hover:bg-gray-800">
+          <div className="flex items-center gap-1 px-4 py-2 hover:bg-gray-800">
             <UserIcon />
             <span className="text-lg">{username.split(" ")[0]}</span>
           </div>
@@ -162,10 +70,9 @@ export default function HomeLayout({ children, username
         </div>
       </aside>
 
-      {/* <main className="flex-1 overflow-y-auto bg-gray-800 text-white p-6"> */}
       <main className="flex-1 overflow-y-auto bg-gray-800 text-white p-4 md:p-6 pb-20 md:pb-6">
         <div className="max-w-5xl mx-auto w-full">
-          {shouldConnect && <WebSocketClient />}
+          {/* {shouldConnect && <WebSocketClient />} */}
           {children}
         </div>
       </main>

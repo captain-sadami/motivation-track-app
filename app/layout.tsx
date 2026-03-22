@@ -1,4 +1,4 @@
-  // layout.tsx designs "layout".
+// layout.tsx designs "layout".
 // layout.tsx is read firstly, after that, the content of page.tsx assigned to { chidlen }.
 // layout.tsx and pages.tsx are composed, it starts to render.
 // Even if layout.tsx is used in client, children part runs as SSR.
@@ -9,6 +9,7 @@ import "./globals.css";
 import { Geist, Geist_Mono } from "next/font/google";
 import AppShell from "./ui/AppShell";
 import { cookies } from "next/headers"
+import { getAppUser } from "@/lib/getAppUser";
 
 
 const geistSans = Geist({ variable: "--font-geist-sans", subsets: ["latin"] });
@@ -19,20 +20,9 @@ export const metadata ={
   description: "Personal productivity tool"
 }
 
-export default async function RootLayout({ 
-  children
-}: {
-  children: React.ReactNode;
-}) {
-  const cookie = await cookies()
-  const token = cookie.get("access_token")?.value;
-  const user = await fetch(process.env.IDCS_USERINFO_ENDPOINT!, {
-      headers: {
-          Authorization: `Bearer ${token}`,
-  }})
-
-  const data = await user.json()
-  const username = data.name ?? "未ログイン"
+export default async function RootLayout({children}: {children: React.ReactNode;}) {
+  const user = await getAppUser();
+  const username = user?.username ?? "未ログイン"
   
   return(
     <html lang="ja">
@@ -45,7 +35,6 @@ export default async function RootLayout({
 
 // <AppShell>{childre}</AppShell>
 // AppShell's {children} is replaced by page.tsx's contents
-
 
 
 // Once layout.tsx is mounted, never unmounted (only after reload, not by page moving).
