@@ -1,7 +1,5 @@
 import ControlClient from "./ControlClient";
 import { cookies } from "next/headers"
-import jwt from "jsonwebtoken";
-import { createSupabaseServer } from "@/lib/supabaseServer"
 
 
 export default async function ControlPage(){
