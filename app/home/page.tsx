@@ -1,75 +1,28 @@
-import { cookies } from "next/headers"
-import jwt from "jsonwebtoken";
+import { redirect } from "next/navigation";
 import HomeClient from "./HomeClient";
-import { createSupabaseServer } from "@/lib/supabaseServer"
+import { getAppUser } from "@/lib/getAppUser";
+import { createSupabaseServer } from "@/lib/supabaseServer";
 
 
 export default async function HomePage() {
-  // cookies is exptracted from request from brower..
-  const cookie = await cookies()
-  const token = cookie.get("access_token")?.value;
-  const idToken = cookie.get("id_token")?.value;
+  const user = await getAppUser();
+  if (!user) redirect("/login");
 
-  if (!idToken || !token) { return <div>No token found</div> }
-
-  // try to get user info with access token.
-  const resp = await fetch(process.env.IDCS_USERINFO_ENDPOINT!, {
-      headers: {
-          Authorization: `Bearer ${token}`,
-      }
-  })
-
-  // resp is Response object, so convert to json format.
-  const user = await resp.json()
-  const username = user.name ?? "No username found"
-
-  // jwt.decode returns several types. so as any is needed to ignore object type.
-  // "as any" overrides object type. i.g. const x = 1 as string
-  const decoded = jwt.decode(idToken) as any;
-  // ★ GUID
-  // GUID is the unique ID for identifying the user in Identity domains.
-  const guid = decoded.user_id ?? decoded.idcs_user_id;
+  const { appUserId:verifiedAppUserId, username } = user
 
   // Download tasks from DB, which should be alloed only to the server never user.
   const supabase = createSupabaseServer();
-
-  const { data: userRow } = await supabase
-    .from("users")
-    .select("id")
-    .eq("identity_id", guid)
-    .single()
   
-  const appUserId = userRow?.id;
-  console.log(`appUserId: ${appUserId}`)
-
-  const { data: goals } = await supabase
-    .from("goals")
-    .select("*")
-    .eq("owner_id", appUserId)
-    .eq("is_active", true)
-  
-  const { data: tasks } = await supabase
-    .from("tasks")
-    .select("*")
-    .eq("user_id", appUserId)
-    .eq("is_completed", false)
-    .order("priority")
-  
-
-  // POST request is processed by POST function in @/api/register/route.ts.
-  await fetch(`http://localhost:3000/api/registerUser`, {
-    method: "POST",
-    headers: { "Content-Type": "application/json" },
-    // JSON.stringify makes JavaScript object to string; HTTP(S), WebScoket always process string.
-    body: JSON.stringify({ identity_id: guid})
-  });
+  const [goalsRes, tasksRes] = await Promise.all([
+    supabase.from("goals").select("*").eq("owner_id", verifiedAppUserId).eq("is_active", true),
+    supabase.from("tasks").select("*").eq("user_id", verifiedAppUserId).eq("is_completed", false).order("priority")
+  ]);
   
   return (
     <HomeClient 
-      username={user.name}
-      appUserId={appUserId}
-      goals={goals ?? []}  
-      tasks={tasks ?? []} 
+      username={username}
+      goals={goalsRes.data ?? []}  
+      tasks={tasksRes.data ?? []} 
     />
   );
 }

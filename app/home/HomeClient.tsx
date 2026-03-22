@@ -28,9 +28,8 @@ type Goal = {
 };
 
 
-export default function HomeClient({ username, appUserId, tasks, goals }:
+export default function HomeClient({ username, tasks, goals }:
   { username: string;
-    appUserId: number;
     tasks: Task[];
     goals: Goal[];
   })
@@ -45,7 +44,7 @@ export default function HomeClient({ username, appUserId, tasks, goals }:
 
     const [taskTitle, setTaskTitle] = useState("")
     const [taskDescription, setTaskDescription] = useState("")    
-    async function addTask(appUserId: number){
+    async function addTask(){
       if (!taskTitle) return;
       await fetch("/api/addTask", {
         method:"POST",
@@ -54,7 +53,6 @@ export default function HomeClient({ username, appUserId, tasks, goals }:
           title: taskTitle,
           description: taskDescription,
           goal_id: selectedGoalId,
-          identity_id: appUserId,
         })
       })
       window.location.reload()
@@ -94,7 +92,6 @@ export default function HomeClient({ username, appUserId, tasks, goals }:
         headers: { "Content-Type": "application/json" },
         body: JSON.stringify({
           task_id: selectedTask.id,
-          user_id: appUserId,
           comment: progressComment,
           mark_as_completed: markAsCompleted, // added for task complete
         }),
@@ -135,8 +132,7 @@ export default function HomeClient({ username, appUserId, tasks, goals }:
 
     const [goalTitle, setGoalTitle] = useState("")
     const [goalDescription, setGoalDescription] = useState("")
-    async function updateGoal(appUserId: number){
-
+    async function updateGoal(){
       await fetch("/api/updateGoal", {
         method:"POST",
         headers: {"Content-Type": "application/json"},
@@ -144,7 +140,6 @@ export default function HomeClient({ username, appUserId, tasks, goals }:
           title: goalTitle,
           description: goalDescription,
           goal_id: selectedGoal4Modal?.id,
-          identity_id: appUserId,
         })
       })
       window.location.reload()
@@ -287,7 +282,7 @@ export default function HomeClient({ username, appUserId, tasks, goals }:
                 <button
                   // when you write onClick={ addTask(appUserId) }, it runs immediately.
                   // when you give addTask function to onClick, you should wrap with {}.
-                  onClick={() => addTask(appUserId)}
+                  onClick={() => addTask()}
                   className="px-4 py-3 rounded bg-blue-600 text-white hover:bg-blue-500 whitespace-nowrap"
                 >
                   送信
@@ -375,7 +370,7 @@ export default function HomeClient({ username, appUserId, tasks, goals }:
                     キャンセル
                   </button>
                   <button
-                    onClick={()=>{updateGoal(appUserId)}}
+                    onClick={()=>{updateGoal()}}
                     className="px-3 py-1 rounded bg-blue-600 text-white hover:bg-blue-500"
                   >
                     送信
@@ -420,7 +415,7 @@ export default function HomeClient({ username, appUserId, tasks, goals }:
                   </button>
                   <button
                     onClick={()=>{
-                        updateGoal(appUserId);
+                        updateGoal();
                         setAddGoalModal(false);
                         setGoalDescription("");
                         setGoalTitle("");

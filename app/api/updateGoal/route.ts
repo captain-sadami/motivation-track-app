@@ -10,7 +10,7 @@ export async function POST(req: Request){
     return NextResponse.json({ error: "Unauthorized" }, { status: 401 });
   }
 
-  const { goal_id, title, description, identity_id } = await req.json();
+  const { goal_id, title, description } = await req.json();
   const supabase = createSupabaseServer();
 
   // when editing an existing goal
