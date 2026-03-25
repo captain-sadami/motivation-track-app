@@ -4,7 +4,7 @@ import { NextRequest, NextResponse } from "next/server"
 // The case where the default function use argument as (req: NextRequest) is when the traffic transiting
 // such as middleware, routes..
 // NextRequest or Next Response is for server side, when "use client", it is not needed.
-export async function proxy(req: NextRequest) {
+export async function middleware(req: NextRequest) {
   const path = req.nextUrl.pathname
   
   const token = req.cookies.get("access_token")?.value

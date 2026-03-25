@@ -29,6 +29,6 @@
     ".next/types/**/*.ts",
     ".next/dev/types/**/*.ts",
     "**/*.mts"
-, "app/auth/callback/page.tsx11221810", "lib/verifyToken.ts", "middleware.ts.20251123", "app/api/ws/route.js2", "proxy.ts", "app/analytics/AnalyticsClient.tsx.251227"  ],
+, "app/auth/callback/page.tsx11221810", "lib/verifyToken.ts", "middleware.ts.20251123", "app/api/ws/route.js2", "middleware.ts", "app/analytics/AnalyticsClient.tsx.251227"  ],
   "exclude": ["node_modules"]
 }
