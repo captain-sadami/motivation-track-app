@@ -23,6 +23,7 @@ export default function LogoutPage() {
       // redirect() method cannot be used for external URL like https://idcs....
       // redirect() can use for the same origin ig. from https://google.com：443/login to https://google.com:443/logout
       window.location.href = url;
+      console.log("here")
     }
 
     performLogout();
