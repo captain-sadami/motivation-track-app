@@ -137,21 +137,21 @@ WEEKLY_SUMMARIES {
  bigint user_id FK
 }
 
-DEPARTMENTS ||--o{ USERS : 部署はユーザーを持つ
-DEPARTMENTS ||--o{ GOALS : 部署単位でゴールを持つこともある
+DEPARTMENTS ||--o{ USERS : "部署はユーザーを持つ"
+DEPARTMENTS ||--o{ GOALS : "部署単位でゴールを持つこともある"
 
-USERS ||--o{ GOALS : ユーザーはゴールを持つ
-USERS ||--o{ TASKS : ユーザーはタスクを持つ
-USERS ||--o{ PROGRESS : ユーザーはタスクの進捗と紐づく
+USERS ||--o{ GOALS : "ユーザーはゴールを持つ"
+USERS ||--o{ TASKS : "ユーザーはタスクを持つ"
+USERS ||--o{ PROGRESS : "ユーザーはタスクの進捗と紐づく"
 
-GOALS ||--o{ TASKS : タスクはゴールに紐づく（紐づかない場合もある）
-TASKS ||--o{ PROGRESS : タスクはログとして進捗状況を持つ（機能2でAIの分析に利用）
+GOALS ||--o{ TASKS : "タスクはゴールに紐づく（紐づかない場合もある）"
+TASKS ||--o{ PROGRESS : "タスクはログとして進捗状況を持つ（機能2でAIの分析に利用）"
 
-USERS ||--o{ IMPULSES : ユーザーは誘惑を登録(機能3用途)
-USERS ||--o{ ATTENDANCE : ユーザーの勤怠情報を記録（実装予定）
+USERS ||--o{ IMPULSES : "ユーザーは誘惑を登録(機能3用途)"
+USERS ||--o{ ATTENDANCE : "ユーザーの勤怠情報を記録（実装予定）"
 
-USERS ||--o{ DAILY_SUMMARIES : ユーザーごとの日報を記録（機能2）
-USERS ||--o{ WEEKLY_SUMMARIES : ユーザーごとの週報を記録（実装予定）
+USERS ||--o{ DAILY_SUMMARIES : "ユーザーごとの日報を記録（機能2）"
+USERS ||--o{ WEEKLY_SUMMARIES : "ユーザーごとの週報を記録（実装予定）"
 ```
 
 
