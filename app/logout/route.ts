@@ -3,7 +3,7 @@ import { NextResponse } from "next/server";
 
 
 export async function GET() {
-  const cookieStore = cookies();
+  const cookieStore = await cookies();
   const idToken = cookieStore.get("id_token")?.value;
 
   // disable authentication satate at Identity Domains.
