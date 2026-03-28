@@ -20,9 +20,6 @@ export default function LogoutPage() {
       // redirect() method cannot be used for external URL like https://idcs....
       // redirect() can use for the same origin ig. from https://google.com：443/login to https://google.com:443/logout
       window.location.href = url;
-
-      // disable cookies on user side.
-      await fetch("/auth/logout_delete_http_cookie", {method: "POST"})
     }
 
     performLogout();
