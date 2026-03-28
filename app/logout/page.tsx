@@ -11,7 +11,7 @@ export default function LogoutPage() {
       // disable authentication satate at Identity Domains.
       const domain = process.env.NEXT_PUBLIC_IDCS_DOMAIN!;
       const baseUrl = process.env.NEXT_PUBLIC_APP_BASE_URL!;
-      const redirectUri = encodeURIComponent(`${baseUrl}/login`);
+      const redirectUri = encodeURIComponent(`${baseUrl}/logout_callback`);
       // The document shows query parameters and id_token_hint is not needed for real though it doesn't have "optional" notion...
       // https://docs.oracle.com/en/cloud/paas/iam-domains-rest-api/op-oauth2-v1-userlogout-get.html
       const url = 
