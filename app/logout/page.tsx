@@ -7,10 +7,7 @@ export default function LogoutPage() {
   // When using window, process must run in the browser.
   // and if you gurantee it runs in browser, you use useEffect function.
   useEffect(() => {
-    async function performLogout(){
-      // disable cookies on user side.
-      await fetch("/auth/logout_delete_http_cookie", {method: "POST"})
-      
+    async function performLogout(){      
       // disable authentication satate at Identity Domains.
       const domain = process.env.NEXT_PUBLIC_IDCS_DOMAIN!;
       const baseUrl = process.env.NEXT_PUBLIC_APP_BASE_URL!;
@@ -23,6 +20,9 @@ export default function LogoutPage() {
       // redirect() method cannot be used for external URL like https://idcs....
       // redirect() can use for the same origin ig. from https://google.com：443/login to https://google.com:443/logout
       window.location.href = url;
+
+      // disable cookies on user side.
+      await fetch("/auth/logout_delete_http_cookie", {method: "POST"})
     }
 
     performLogout();
