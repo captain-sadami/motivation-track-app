@@ -2,8 +2,7 @@ import { NextResponse } from "next/server";
 
 
 export async function GET(req: Request) {
-  const { origin } = new URL(req.url)
-
+  const origin = process.env.NEXT_PUBLIC_APP_BASE_UR
   const response = NextResponse.redirect(`${origin}/login`);
 
   // kill cookies
