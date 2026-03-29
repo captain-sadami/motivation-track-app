@@ -14,7 +14,7 @@ export async function POST(req:Request){
     const body = await req.json();
     const { title, description, goal_id } = body;
 
-    if (!title || !goal_id) {
+    if (!title) {
       return NextResponse.json({ error: "Title and goal_id are ignored" }, {status:400});
     }
 
