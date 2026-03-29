@@ -6,7 +6,6 @@
 //  useEffect(() => {
 //    console.log("WebSocketClient LOADED");
 //
-//    // 必要なら JWT を WebSocket サーバに渡す（後述）
 //    const token = localStorage.getItem("access_token");
 //
 //    const ws = new WebSocket("ws://localhost:3001");

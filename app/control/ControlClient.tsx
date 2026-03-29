@@ -6,7 +6,7 @@ import { AlcoholIcon, LazyIcon, DesireIcon } from "@/components/icons";
 export default function ControlClient(){
   const [impulseType, setInpulseType] = useState<null|"alcohol"|"cheat"|"lust">(null)
   const impulseLabelMap: Record<"alcohol" | "cheat" | "lust", string> 
-    = { "alcohol": "お酒", "cheat": "サボり", "lust": "肉欲"}
+    = { "alcohol": "お酒", "cheat": "サボり", "lust": "その他"}
   const [title, setTitle] = useState<string>("");
   const [nonce, setNonce] = useState(0);
   const [showModal, setShowModal] = useState(false);
