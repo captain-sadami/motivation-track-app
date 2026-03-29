@@ -47,6 +47,6 @@ export const config = {
 
   // turned it into black list: 3/14/2026
   matcher: [
-    "/((?!login|auth/callback|logout|auth/logout_callback|api/ws|_next|favicon.ico|api/dailySummaryBatch).*)",
+    "/((?!login|auth/callback|logout|auth/logout_callback|api/ws|_next|favicon.ico|api/dailySummaryBatch/googledf64f1c1c4ef6099.html).*)",
   ]
 };
