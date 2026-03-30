@@ -72,7 +72,7 @@ export async function POST(req: Request) {
         .from("daily_summaries")
         .select("id")
         .eq("user_id", userId)
-        .eq("date", yyyyMMdd)
+        .eq("summary_date", yyyyMMdd)
         .maybeSingle();
 
       // for day off
