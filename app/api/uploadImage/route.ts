@@ -13,6 +13,7 @@ export async function POST(req: Request) {
   // User authentication is the first todo
   const user = await getAppUser();
   if (!user) { 
+    console.log("1")
     return new Response("Unauthorized", {status: 401});
   }
   const { appUserId } = user;
@@ -23,6 +24,7 @@ export async function POST(req: Request) {
   const impulseType = form.get("impulseType") as string | null;
 
   if (!file || !impulseType) {
+    console.log("2")
     return NextResponse.json({ error: "invalid" }, {status: 400});
   }
 
@@ -57,13 +59,19 @@ export async function POST(req: Request) {
       authenticationDetailsProvider: provider,
   });
   
-  await client.putObject({
-    namespaceName: process.env.OCI_OS_NAMESPACE!,
-    bucketName: "image-bucket",
-    objectName,
-    putObjectBody: buffer,
-    contentType: file.type,
-  });
+  try {
+    await client.putObject({
+      namespaceName: process.env.OCI_OS_NAMESPACE!,
+      bucketName: "image-bucket",
+      objectName,
+      putObjectBody: buffer,
+      contentType: file.type,
+    })
+    console.log("OCI Upload Success");
+  } catch (err) {
+    console.log("OCI Error", err);
+    return NextResponse.json({ error: "OCI Upload Failed" }, { status: 500 });
+  }
 
   const title = await form.get("title") as string | null;
   const supabase = createSupabaseServer();
