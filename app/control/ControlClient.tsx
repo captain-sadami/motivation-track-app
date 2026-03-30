@@ -137,13 +137,28 @@ export default function ControlClient(){
                 />
                 <input
                   type="file"
-                  accept="image/*"
+                  // accept="image/*"
+                  // Do not accept HEIC
+                  accept="image/jpeg, image/png, image/webp, image/gif"
                   // when file selection happens (an file is chosen), function is executed.
                   // e.target is input element here.
                   onChange={async (e) => {
-                   const file = e.target.files?.[0] ?? null;
-                   setSelectedFile(file)
+                    const file = e.target.files?.[0] ?? null;
+                    
+                    if (file) {
+                      const allowedTypes = ["image/jpeg","image/png","image/webp","image/gif"];
+
+                      if (!allowedTypes.includes(file.type)) {
+                        alert("JPG, PNG, WebP形式の画像をご指定ください")
+                        e.target.value="";
+                        setSelectedFile(null)
+                        return;
+                      }
+                  }
+
+                    setSelectedFile(file)
                   }}
+
                   className="block w-full text-sm text-gray-400
                              file:mr-4 file:py-2 file:px-4
                              file:rounded file:border-0
