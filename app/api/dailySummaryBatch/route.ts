@@ -52,6 +52,8 @@ export async function POST(req: Request) {
     const { startUtc, endUtc } = jstDayToUtcRange(new Date());
     for (const user of users ?? []) {
       const userId = user.id;
+      console.log(`--- Processing User: ${userId} ---`);
+
       // get progress
       const { data: progress, error } = await supabase
         .from("progress")
@@ -98,7 +100,10 @@ export async function POST(req: Request) {
         }
       }
       
+      console.log(`Calling analyzaMotivation for ${userId}...`);
       const result = await analyzeMotivation(taskGroupedProgress);
+      console.log(`Analyze done for ${userId}`)
+
       const { error: insertErr } = await supabase
         .from("daily_summaries")
         .insert({
@@ -111,6 +116,8 @@ export async function POST(req: Request) {
         console.error("daily_summary insert failed", insertErr);
         continue;
       }
+
+      console.log(`--- Finished User: ${userId} ---`);
     }
     
     return NextResponse.json({

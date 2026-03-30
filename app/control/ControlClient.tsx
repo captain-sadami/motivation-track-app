@@ -124,7 +124,7 @@ export default function ControlClient(){
                   {impulseLabelMap[impulseType]}用の画像を追加
                 </h3>
                 <p className="text-sm text-gray-400">
-                  負けそうなときに表示される画像とコメントを登録します
+                  負けそうなときに表示したい画像とコメントを登録(jpeg, png, gif)
                 </p>
                 <input 
                   type="text" 
